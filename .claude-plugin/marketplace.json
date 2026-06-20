@@ -1,0 +1,25 @@
+{
+  "name": "xeiculy-plugins",
+  "owner": {
+    "name": "XeicuLy",
+    "url": "https://github.com/XeicuLy"
+  },
+  "metadata": {
+    "description": "Claude Code plugins by XeicuLy — task planning and GitHub Issue workflows",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "task-planner",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/XeicuLy/xeiculy-plugins.git",
+        "path": "task-planner",
+        "ref": "main"
+      },
+      "description": "Structured feature planning workflow: requirement clarification → codebase exploration → design comparison → task decomposition → GitHub Issue creation. Enforces phase gates with user approval at each step.",
+      "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/task-planner",
+      "strict": true
+    }
+  ]
+}
