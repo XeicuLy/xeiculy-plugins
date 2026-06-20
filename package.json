@@ -4,9 +4,15 @@
   "type": "module",
   "scripts": {
     "setup": "mise install",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "prettier": "3.8.4"
+    "@commitlint/cli": "21.0.2",
+    "@commitlint/config-conventional": "21.0.2",
+    "@commitlint/types": "21.0.1",
+    "husky": "9.1.7",
+    "prettier": "3.8.4",
+    "typescript": "6.0.3"
   }
 }
