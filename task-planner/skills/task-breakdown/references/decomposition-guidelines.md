@@ -1,95 +1,95 @@
-# タスク分解ガイドライン
+# Task Decomposition Guidelines
 
-## 基本原則
+## Core Principle
 
-AIが設計するすべてのタスクは「**独立してrevertできる最小の意味ある変更単位**」であるべき。具体的には次の4条件を満たすこと。
+Every task designed by AI should be "the smallest meaningful unit of change that can be independently reverted." Specifically, it must satisfy the following 4 conditions:
 
-- アプリケーションを壊さずにマージできること
-- 実装とテストが含まれていること
-- 他のタスクに影響を与えずにrevertできること
-- レビュアーが2〜3時間以内にレビューできること
+- Can be merged without breaking the application
+- Includes both implementation and tests
+- Can be reverted without affecting other tasks
+- A reviewer can review it within 2–3 hours
 
 ---
 
-## 分割判断の3ステップフローチャート
+## 3-Step Flowchart for Split Decisions
 
-タスクAとタスクBを同じタスクにまとめるか分けるかを、次の3ステップで判断する。どれか1つで「高凝集」と判断された時点で同じタスクにまとめ、3つすべてを通過してはじめて別タスクとして分離する。
+Use the following 3 steps to decide whether to combine Task A and Task B into one task or separate them. As soon as any step determines "high cohesion," combine them into one task. Only separate them into different tasks after passing all 3 steps.
 
-### Step 1: 動作の独立性（Independence Check）
+### Step 1: Independence Check
 
-「タスクAがなくてもタスクBは正常に動作するか？」
+"Does Task B work correctly without Task A?"
 
-- **動作しない** → 高凝集と判断し、同じタスクにまとめる
-- **動作する** → Step 2へ進む
+- **Does not work** → High cohesion: combine into the same task
+- **Works** → Proceed to Step 2
 
-例: APIエンドポイントとルーティング設定 → 動作しない → 同じタスク
+Example: API endpoint and routing configuration → Does not work → Same task
 
-### Step 2: 機能の完結性（Completeness Check）
+### Step 2: Completeness Check
 
-「タスクAだけをマージしても、意味のある機能として完結するか？」
+"Does Task A alone merge into a meaningful, complete feature?"
 
-- **完結しない** → 同じタスクにまとめる
-- **完結する** → Step 3へ進む
+- **Not complete** → Combine into the same task
+- **Complete** → Proceed to Step 3
 
-例: メール送信ロジックのみ → イベントトリガーなしでは意味をなさない → 同じタスク
+Example: Email sending logic only → Meaningless without event trigger → Same task
 
-### Step 3: revertの影響範囲（Revert Impact Check）
+### Step 3: Revert Impact Check
 
-「タスクAをrevertしたら、タスクBも壊れるか？」
+"If Task A is reverted, does Task B also break?"
 
-- **壊れる** → 同じタスクにまとめる
-- **壊れない** → 別タスクに分離する
+- **Breaks** → Combine into the same task
+- **Does not break** → Separate into different tasks
 
-例: 実装コードとテストコード → 実装をrevertするとテストが壊れる → 同じタスク
+Example: Implementation code and test code → Reverting implementation breaks tests → Same task
 
 ```mermaid
 flowchart TD
-    Start([タスクAとタスクB]) --> S1{動作の独立性\nIndependence Check}
-    S1 -->|動作しない| M1[同じタスクにまとめる]
-    S1 -->|動作する| S2{機能の完結性\nCompleteness Check}
-    S2 -->|完結しない| M2[同じタスクにまとめる]
-    S2 -->|完結する| S3{revertの影響範囲\nRevert Impact Check}
-    S3 -->|壊れる| M3[同じタスクにまとめる]
-    S3 -->|壊れない| Split([別タスクに分離する])
+    Start([Task A and Task B]) --> S1{Independence Check}
+    S1 -->|Does not work| M1[Combine into same task]
+    S1 -->|Works| S2{Completeness Check}
+    S2 -->|Not complete| M2[Combine into same task]
+    S2 -->|Complete| S3{Revert Impact Check}
+    S3 -->|Breaks| M3[Combine into same task]
+    S3 -->|Does not break| Split([Separate into different tasks])
 ```
 
 ---
 
-## タスクサイズの定量指標
+## Quantitative Task Size Metrics
 
-|          指標          |       理想       |  最大   |
-| :--------------------: | :--------------: | :-----: |
-|     変更ファイル数     |     3〜10個      |  15個   |
-| 変更行数（テスト含む） |    200〜500行    | 1,000行 |
-|     テストコード量     | 実装の0.5倍〜2倍 |    -    |
+|           Metric            |    Ideal     | Maximum |
+| :-------------------------: | :----------: | :-----: |
+|        Files changed        |     3–10     |   15    |
+| Lines changed (incl. tests) |   200–500    |  1,000  |
+|      Test code volume       | 0.5x–2x impl |    -    |
 
-凝集度が高い変更であれば、サイズが目安を超えても無理に分割しない。サイズはあくまで補助指標。
-
----
-
-## 凝集度パターン集
-
-### 常に同じタスクにまとめるべきもの
-
-- 実装コード ⇔ テストコード（テストなしの実装はマージしない）
-- UIコンポーネント ⇔ そのコンポーネントのテスト
-- ストア ⇔ ストアのテスト
-- カスタムフック・コンポーザブル ⇔ そのテスト
-
-### 常に別タスクに分けるべきもの
-
-- リファクタリング ⇔ 新機能追加（バグ発生時の原因特定を容易にする）
-- feature flag の各段階（実装→テスト有効化→全体有効化→削除）
-- 依存ライブラリの更新 ⇔ 新機能追加
-- パフォーマンス改善 ⇔ 新機能追加
-- 互いに依存しない複数の機能
+If the cohesion of changes is high, do not force a split even if the size exceeds the guideline. Size is a supplementary metric only.
 
 ---
 
-## タスクリストを評価する5つの観点
+## Cohesion Pattern Catalog
 
-1. **粒度チェック**: 各タスクのサイズが適切か、大きすぎる・小さすぎるものがないか
-2. **凝集度チェック**: 実装とテストが同じタスクにあるか
-3. **独立性チェック**: 各タスクを単独でrevertできるか、マージ後もアプリが正常動作するか
-4. **依存関係マッピング**: タスク間の依存関係が明確か、並列実装できるタスクが識別されているか
-5. **改善提案**: 問題があればどのタスクを分割・統合すべきかの具体的な推奨
+### Always combine into the same task
+
+- Implementation code ⇔ Test code (never merge implementation without tests)
+- UI component ⇔ Tests for that component
+- Store ⇔ Store tests
+- Custom hooks / composables ⇔ Their tests
+
+### Always separate into different tasks
+
+- Refactoring ⇔ New feature addition (makes it easier to identify the cause of bugs)
+- Each stage of a feature flag (implement → enable in tests → enable globally → remove)
+- Dependency library updates ⇔ New feature additions
+- Performance improvements ⇔ New feature additions
+- Multiple features with no mutual dependencies
+
+---
+
+## 5 Perspectives for Evaluating a Task List
+
+1. **Granularity check**: Is each task size appropriate? Are there any that are too large or too small?
+2. **Cohesion check**: Are implementation and tests in the same task?
+3. **Independence check**: Can each task be reverted independently? Does the app work correctly after merging?
+4. **Dependency mapping**: Are dependencies between tasks clear? Are tasks that can be implemented in parallel identified?
+5. **Improvement proposals**: If there are problems, specific recommendations on which tasks to split or consolidate

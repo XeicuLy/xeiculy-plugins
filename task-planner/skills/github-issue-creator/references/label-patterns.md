@@ -1,34 +1,34 @@
-# レイヤーラベル 汎用パターン対応表
+# Layer Label Generic Pattern Mapping Table
 
-変更ファイルパスからレイヤーラベルを推論する際に使用する。パターンに完全一致しなくても、ディレクトリ構造から類推してよい。
+Used when inferring layer labels from changed file paths. Even if not an exact match, infer from the directory structure.
 
-## データベース / マイグレーション層
+## Database / Migration Layer
 
-| ファイルパスのパターン                                  | ラベル             |
+| File path pattern                                       | Label              |
 | ------------------------------------------------------- | ------------------ |
 | `migrations/`, `db/migrations/`, `database/migrations/` | `layer: migration` |
-| `*.sql`（マイグレーション目的）                         | `layer: migration` |
+| `*.sql` (for migration purposes)                        | `layer: migration` |
 
-## データアクセス層
+## Data Access Layer
 
-| ファイルパスのパターン               | ラベル              |
+| File path pattern                    | Label               |
 | ------------------------------------ | ------------------- |
 | `repository/`, `repositories/`       | `layer: repository` |
 | `store/`, `stores/`, `dao/`, `daos/` | `layer: repository` |
-| `models/`（ORM / DB モデル）         | `layer: repository` |
+| `models/` (ORM / DB models)          | `layer: repository` |
 
-## ビジネスロジック層
+## Business Logic Layer
 
-| ファイルパスのパターン                | ラベル           |
+| File path pattern                     | Label            |
 | ------------------------------------- | ---------------- |
 | `service/`, `services/`               | `layer: service` |
 | `usecase/`, `usecases/`, `use_cases/` | `layer: service` |
 | `domain/`, `domains/`                 | `layer: service` |
 | `interactor/`, `interactors/`         | `layer: service` |
 
-## API / プレゼンテーション層
+## API / Presentation Layer
 
-| ファイルパスのパターン                           | ラベル       |
+| File path pattern                                | Label        |
 | ------------------------------------------------ | ------------ |
 | `handler/`, `handlers/`                          | `layer: api` |
 | `controller/`, `controllers/`                    | `layer: api` |
@@ -36,34 +36,34 @@
 | `api/`, `endpoints/`                             | `layer: api` |
 | `openapi.yaml`, `swagger.yaml`, `*.openapi.json` | `layer: api` |
 
-## フロントエンド層
+## Frontend Layer
 
-| ファイルパスのパターン                        | ラベル            |
-| --------------------------------------------- | ----------------- |
-| `frontend/`, `client/`, `web/`                | `layer: frontend` |
-| `ui/`, `src/components/`, `src/pages/`        | `layer: frontend` |
-| `src/views/`, `src/screens/`                  | `layer: frontend` |
-| `*.vue`, `*.jsx`, `*.tsx`（UIコンポーネント） | `layer: frontend` |
+| File path pattern                         | Label             |
+| ----------------------------------------- | ----------------- |
+| `frontend/`, `client/`, `web/`            | `layer: frontend` |
+| `ui/`, `src/components/`, `src/pages/`    | `layer: frontend` |
+| `src/views/`, `src/screens/`              | `layer: frontend` |
+| `*.vue`, `*.jsx`, `*.tsx` (UI components) | `layer: frontend` |
 
-## インフラ / CI/CD 層
+## Infrastructure / CI/CD Layer
 
-| ファイルパスのパターン                        | ラベル                                              |
-| --------------------------------------------- | --------------------------------------------------- |
-| `infra/`, `infrastructure/`                   | `infra`（種別ラベルとして付与、レイヤーラベルなし） |
-| `.github/workflows/`                          | `infra`                                             |
-| `terraform/`, `pulumi/`, `ansible/`           | `infra`                                             |
-| `docker/`, `Dockerfile`, `docker-compose.yml` | `infra`                                             |
-| `k8s/`, `kubernetes/`                         | `infra`                                             |
+| File path pattern                             | Label                                           |
+| --------------------------------------------- | ----------------------------------------------- |
+| `infra/`, `infrastructure/`                   | `infra` (applied as type label, no layer label) |
+| `.github/workflows/`                          | `infra`                                         |
+| `terraform/`, `pulumi/`, `ansible/`           | `infra`                                         |
+| `docker/`, `Dockerfile`, `docker-compose.yml` | `infra`                                         |
+| `k8s/`, `kubernetes/`                         | `infra`                                         |
 
-## テスト層
+## Test Layer
 
-| ファイルパスのパターン                   | ラベル                                      |
-| ---------------------------------------- | ------------------------------------------- |
-| `test/`, `tests/`, `__tests__/`, `spec/` | `layer: test`（他のレイヤーラベルと併用可） |
-| `*.test.ts`, `*.spec.ts`, `*_test.go`    | `layer: test`                               |
+| File path pattern                        | Label                                             |
+| ---------------------------------------- | ------------------------------------------------- |
+| `test/`, `tests/`, `__tests__/`, `spec/` | `layer: test` (can be combined with other labels) |
+| `*.test.ts`, `*.spec.ts`, `*_test.go`    | `layer: test`                                     |
 
-## 備考
+## Notes
 
-- 複数のパターンに一致するファイルは、より具体的なパターンを優先する
-- プロジェクト固有のディレクトリ構造は、全体のアーキテクチャから類推して適切なラベルを付与する
-- パターンに一致しない場合はレイヤーラベルを省略し、種別ラベルのみを付与する
+- When a file matches multiple patterns, prioritize the more specific pattern.
+- For project-specific directory structures, infer appropriate labels from the overall architecture.
+- If no pattern matches, omit the layer label and apply only the type label.

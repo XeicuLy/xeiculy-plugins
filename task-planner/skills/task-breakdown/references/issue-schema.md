@@ -1,29 +1,29 @@
-# github-issue-creator ペイロードスキーマ
+# github-issue-creator Payload Schema
 
-`task-planner:github-issue-creator` スキルへ渡す情報の形式定義。
+Format definition for information passed to the `task-planner:github-issue-creator` skill.
 
-## フィールド一覧
+## Field List
 
-| フィールド            | 型     | 必須 | 説明                                                              |
-| --------------------- | ------ | ---- | ----------------------------------------------------------------- |
-| `requirements`        | string | ✅   | 確定した要件のサマリー（機能概要・対象ユーザー・主要な仕様）      |
-| `chosen_architecture` | string | ✅   | 選択したアプローチ名と設計方針                                    |
-| `child_issues`        | array  | ✅   | タスクリスト（後述）                                              |
-| `dependency_table`    | array  | —    | 依存ペアの明示リスト。`child_issues[*].depends_on` と一致すること |
+| Field                 | Type   | Required | Description                                                                   |
+| --------------------- | ------ | -------- | ----------------------------------------------------------------------------- |
+| `requirements`        | string | ✅       | Summary of finalized requirements (feature overview, target users, key specs) |
+| `chosen_architecture` | string | ✅       | Selected approach name and design policy                                      |
+| `child_issues`        | array  | ✅       | Task list (see below)                                                         |
+| `dependency_table`    | array  | —        | Explicit list of dependency pairs. Must match `child_issues[*].depends_on`    |
 
-## child_issues の各要素
+## Fields for each child_issues element
 
-| フィールド      | 型       | 必須 | 説明                                            |
-| --------------- | -------- | ---- | ----------------------------------------------- |
-| `id`            | string   | ✅   | タスクのローカル識別子（例: `T1`, `T2`）        |
-| `title`         | string   | ✅   | タスクタイトル（例: `Piniaストアの型定義追加`） |
-| `summary`       | string   | ✅   | このタスクで実装・変更する内容（1〜2文）        |
-| `changed_files` | array    | ✅   | 変更ファイルリスト（後述）                      |
-| `notes`         | string   | —    | 設計上の制約・注意点                            |
-| `requirements`  | string[] | —    | 実装要件（What を箇条書き）                     |
-| `depends_on`    | string[] | —    | 依存する child_issue の id 配列                 |
+| Field           | Type     | Required | Description                                              |
+| --------------- | -------- | -------- | -------------------------------------------------------- |
+| `id`            | string   | ✅       | Local task identifier (e.g., `T1`, `T2`)                 |
+| `title`         | string   | ✅       | Task title (e.g., `Piniaストアの型定義追加`)             |
+| `summary`       | string   | ✅       | What this task implements or changes (1–2 sentences)     |
+| `changed_files` | array    | ✅       | List of changed files (see below)                        |
+| `notes`         | string   | —        | Design constraints or caveats                            |
+| `requirements`  | string[] | —        | Implementation requirements (what to do, in bullet form) |
+| `depends_on`    | string[] | —        | Array of child_issue IDs this task depends on            |
 
-## changed_files の各要素
+## Fields for each changed_files element
 
 ```json
 {
@@ -32,9 +32,9 @@
 }
 ```
 
-`op` は `CREATE` / `MODIFY` / `DELETE` のいずれか。
+`op` must be one of `CREATE`, `MODIFY`, or `DELETE`.
 
-## ペイロード例
+## Payload Example
 
 ```json
 {

@@ -13,128 +13,128 @@ version: 0.1.0
 
 # Task Breakdown Skill
 
-> このスキルは日本語で動作する。指示はすべて日本語で解釈し、ユーザーへの応答も日本語で行う。
+> Operate entirely in Japanese. Interpret all instructions in Japanese and respond to the user in Japanese.
 >
-> 使用するツール: `TaskCreate`（進捗追跡）、`AskUserQuestion`（インタラクティブ質問）、`Agent`（サブエージェント起動）、`Skill`（スキル委譲）
+> Tools to use: `TaskCreate` (progress tracking), `AskUserQuestion` (interactive questions), `Agent` (sub-agent launch), `Skill` (skill delegation)
 
-要件の明確化からGitHub Issue作成まで、実装に必要な準備を体系的に進める。フェーズごとにユーザーの承認を得てから次フェーズへ進む。
+Systematically progress through implementation preparation from requirement clarification to GitHub Issue creation. Obtain user approval at each phase gate before proceeding.
 
 <HARD-GATE>
-フェーズ2（コードベース探索）の完了前に、フェーズ3（要件の明確化）へ進んではならない。
-フェーズ3（要件の明確化）でユーザーの確認を得るまで、フェーズ4（設計）を開始してはならない。
-フェーズ4（設計）でユーザーのアプローチ選択を得るまで、フェーズ5（タスク分解）を開始してはならない。
-フェーズ5（タスク分解）でユーザーの承認を得るまで、フェーズ6（Issue作成）を開始してはならない。
-これは規模・複雑さに関係なく、すべてのタスク分解に適用される。
+Do not proceed to Phase 3 (requirement clarification) before completing Phase 2 (codebase exploration).
+Do not start Phase 4 (design) until the user confirms in Phase 3 (requirement clarification).
+Do not start Phase 5 (task decomposition) until the user selects an approach in Phase 4 (design).
+Do not start Phase 6 (issue creation) until the user approves in Phase 5 (task decomposition).
+This applies to all task decompositions regardless of scope or complexity.
 </HARD-GATE>
 
-## コア原則
+## Core Principles
 
-- **インタラクティブに進める**: 曖昧な点は `AskUserQuestion` ツールで選択式質問を投げる。仮定で進めない
-- **理解してから行動する**: コードベースを探索してから設計・分解に進む
-- **revert 単位で分解する**: 各タスクが「独立してrevertできる最小の意味ある変更単位」であることを常に意識する
-- **TODO で進捗を追跡する**: 全フェーズの進捗を `TaskCreate` で管理する
-
----
-
-## フェーズ 1: 要件の理解
-
-**ゴール**: 実現したい要件を正しく把握する
-
-1. `TaskCreate` で全フェーズのタスクを作成する
-2. ユーザーが入力した要件を確認し、明らかに曖昧な点があれば `AskUserQuestion` で選択式質問を投げる
-3. 理解した要件をまとめ、`AskUserQuestion` で認識が合っているか確認する
-   - 選択肢例: `["はい、その通りです", "修正が必要です"]`
-
-4. **軽量パス判定**: 以下を**すべて**満たす場合は軽量パスとして進める:
-   - 変更ファイル数が5個以下と見込まれる
-   - 要件が一文で説明できる（曖昧さや技術的選択肢の分岐がない）
-   - 類似実装がコードベースに既に存在する（全くの新機能ではない）
-
-   **軽量パス**: フェーズ2（探索エージェント1本のみ）→ フェーズ3（確認のみ）→ フェーズ5（直接分解）→ フェーズ6
-   **通常パス**: フェーズ2 → フェーズ3 → フェーズ4 → フェーズ5 → フェーズ6
+- **Proceed interactively**: Use `AskUserQuestion` with multiple-choice options for ambiguities. Never proceed on assumptions.
+- **Understand before acting**: Explore the codebase before proceeding to design and decomposition.
+- **Decompose by revert unit**: Each task must be "the smallest meaningful unit of change that can be independently reverted."
+- **Track progress with TODOs**: Manage all phase progress with `TaskCreate`.
 
 ---
 
-## フェーズ 2: コードベースの探索
+## Phase 1: Requirement Understanding
 
-**ゴール**: 要件を実現するために既存のコードベースがどうなっているかを理解する
+**Goal**: Correctly understand what the user wants to achieve.
 
-1. `Agent` ツールで `feature-dev:code-explorer` サブエージェントを 2〜3 本並列起動する。各エージェントに異なる観点を割り当てる:
-   - 類似機能・既存の実装パターンの調査
-   - アーキテクチャ全体のマッピング
-   - 関連ファイル・エントリーポイントの特定
+1. Create tasks for all phases using `TaskCreate`.
+2. Review the requirements the user entered; if there are clearly ambiguous points, use `AskUserQuestion` to ask multiple-choice questions.
+3. Summarize your understanding and confirm alignment with `AskUserQuestion`.
+   - Example options: `["はい、その通りです", "修正が必要です"]`
 
-   各エージェントへの必須指示:
-   - 出力は **200 行以内** に収めること
-   - 以下の 3 セクション形式で出力すること:
-     1. **重要ファイル**（最大 7 件）: パスと一行説明
-     2. **主要パターン**（最大 5 件）: コードベースで使われている実装パターン
-     3. **次フェーズへの示唆**（最大 3 件）: 設計・実装上の注意点
+4. **Lightweight path decision**: If **all** of the following apply, proceed as a lightweight path:
+   - Expected to modify 5 or fewer files
+   - Requirements can be explained in one sentence (no ambiguity or branching technical choices)
+   - Similar implementation already exists in the codebase (not an entirely new feature)
 
-2. 発見したパターンや知見をまとめてユーザーに報告する
-
----
-
-## フェーズ 3: 要件の明確化
-
-**ゴール**: 設計前にすべての曖昧な点を解消する
-
-> ⚠️ **CRITICAL**: このフェーズは最も重要なフェーズの一つ。スキップ厳禁。
-
-1. フェーズ1の要件とフェーズ2のコードベース調査結果を照合する
-2. 未定義の側面を特定する: エッジケース・エラーハンドリング・スコープ境界・統合ポイント
-3. **`AskUserQuestion` ツールを使って質問を 1〜4 個提示する**。可能な限り選択肢形式を使用する
-4. 全ての質問の回答を整理し、確定した要件として `AskUserQuestion` でユーザーに確認する
-   - 選択肢例: `["はい、この要件で進めてください", "修正が必要です"]`
+   **Lightweight path**: Phase 2 (single explorer agent only) → Phase 3 (confirmation only) → Phase 5 (direct decomposition) → Phase 6
+   **Standard path**: Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
 
 ---
 
-## フェーズ 4: 設計
+## Phase 2: Codebase Exploration
 
-**ゴール**: 異なるトレードオフを持つ複数の実装アプローチを設計する
+**Goal**: Understand the current state of the codebase needed to implement the requirements.
 
-1. `Agent` ツールで `feature-dev:code-architect` サブエージェントを 2〜3 本並列起動し、それぞれ異なるアプローチで設計させる:
-   - **最小変更アプローチ**: 最小限の変更・最大限の既存コード再利用
-   - **プラグマティックアプローチ**: 開発速度と品質のバランス
-   - **ベストプラクティスアプローチ**: 推奨パターン・コンポーネント設計・テスタビリティを重視
+1. Launch 2–3 `feature-dev:code-explorer` sub-agents in parallel using the `Agent` tool. Assign different perspectives to each agent:
+   - Investigation of similar features and existing implementation patterns
+   - Overall architecture mapping
+   - Identification of related files and entry points
 
-   各エージェントへの必須指示:
-   - 出力は **150 行以内** に収めること
-   - 変更ファイルテーブル（パス・操作・理由）・メリット/デメリット・想定タスク数のみ返す
+   Required instructions for each agent:
+   - Keep output to **200 lines or fewer**
+   - Return output in the following 3-section format:
+     1. **Key files** (max 7): path and one-line description
+     2. **Main patterns** (max 5): implementation patterns used in the codebase
+     3. **Suggestions for next phase** (max 3): design and implementation considerations
 
-2. 各アプローチを検討し、`AskUserQuestion` でユーザーに提示する（選択肢は最大 4 つまで）:
-   - 各アプローチの概要・メリット・デメリット・想定タスク数
-   - 根拠を含む推奨案
-
----
-
-## フェーズ 5: タスク分解
-
-**ゴール**: 確定した設計をもとに、適切な粒度でタスクを分解・評価する
-
-1. フェーズ4で選択されたアプローチのタスクリストを生成する
-2. `references/decomposition-guidelines.md` の「タスクリストを評価する5つの観点」セクションに従ってタスクリストを自己評価する
-3. 評価結果（粒度チェック・凝集度チェック・独立性チェック・依存関係マッピング・改善提案）をユーザーに提示する
-4. `AskUserQuestion` でIssue構造の承認を得る
-   - 選択肢例: `["はい、このタスク分解でIssueを作成してください", "調整が必要です"]`
+2. Summarize discovered patterns and insights and report to the user.
 
 ---
 
-## フェーズ 6: Issue作成
+## Phase 3: Requirement Clarification
 
-**ゴール**: 承認されたタスク分解をGitHub Issueとして作成する
+**Goal**: Resolve all ambiguities before design begins.
 
-> 🚫 **ユーザーの承認なしにIssueを作成してはならない**
+> ⚠️ **CRITICAL**: This is one of the most important phases. Do not skip.
 
-1. `Skill(skill="task-planner:github-issue-creator")` を呼び出す
-2. スキルに以下の情報を渡す:
-   - 確定した要件のサマリー
-   - 選択したアーキテクチャアプローチ
-   - タスクリスト（各タスクのタイトル・概要・依存関係）
-   - `changed_files` のフォーマットは `references/issue-schema.md` を参照する
+1. Cross-reference Phase 1 requirements with Phase 2 codebase findings.
+2. Identify undefined aspects: edge cases, error handling, scope boundaries, integration points.
+3. **Use `AskUserQuestion` to present 1–4 questions**. Use multiple-choice format wherever possible.
+4. Organize all answers and confirm finalized requirements with the user using `AskUserQuestion`.
+   - Example options: `["はい、この要件で進めてください", "修正が必要です"]`
 
-3. スキルが返した Issue URL を整理してユーザーに提示する
-4. 次のステップ（実装順序・並列実装できるタスク・推奨PR戦略）を案内する
+---
+
+## Phase 4: Design
+
+**Goal**: Design multiple implementation approaches with different trade-offs.
+
+1. Launch 2–3 `feature-dev:code-architect` sub-agents in parallel using the `Agent` tool, each designing a different approach:
+   - **Minimal-change approach**: Minimum changes, maximum reuse of existing code
+   - **Pragmatic approach**: Balance between development speed and quality
+   - **Best-practice approach**: Emphasis on recommended patterns, component design, and testability
+
+   Required instructions for each agent:
+   - Keep output to **150 lines or fewer**
+   - Return only: changed-files table (path, operation, reason), pros/cons, and estimated task count
+
+2. Review each approach and present to the user using `AskUserQuestion` (max 4 options):
+   - Summary, pros, cons, and estimated task count for each approach
+   - A recommendation with justification
+
+---
+
+## Phase 5: Task Decomposition
+
+**Goal**: Decompose the finalized design into tasks at the appropriate granularity and evaluate them.
+
+1. Generate a task list for the approach selected in Phase 4.
+2. Self-evaluate the task list according to the "5 perspectives for evaluating a task list" section in `references/decomposition-guidelines.md`.
+3. Present evaluation results (granularity check, cohesion check, independence check, dependency mapping, improvement proposals) to the user.
+4. Obtain approval for the Issue structure using `AskUserQuestion`.
+   - Example options: `["はい、このタスク分解でIssueを作成してください", "調整が必要です"]`
+
+---
+
+## Phase 6: Issue Creation
+
+**Goal**: Create the approved task decomposition as GitHub Issues.
+
+> 🚫 **Do not create Issues without user approval.**
+
+1. Call `Skill(skill="task-planner:github-issue-creator")`.
+2. Pass the following information to the skill:
+   - Summary of finalized requirements
+   - Selected architecture approach
+   - Task list (title, summary, and dependencies for each task)
+   - See `references/issue-schema.md` for the `changed_files` format
+
+3. Organize the Issue URLs returned by the skill and present them to the user.
+4. Guide the user on next steps (implementation order, tasks that can be parallelized, recommended PR strategy).
 
 ---
 
@@ -142,9 +142,9 @@ version: 0.1.0
 
 ### Reference Files
 
-- **`references/decomposition-guidelines.md`** — タスク分解の評価基準・分割判断フローチャート・サイズ指標・凝集度パターン集
-- **`references/issue-schema.md`** — `github-issue-creator` スキルに渡すペイロードのスキーマ定義
+- **`references/decomposition-guidelines.md`** — Evaluation criteria for task decomposition, split-decision flowchart, size metrics, cohesion pattern catalog
+- **`references/issue-schema.md`** — Schema definition for the payload passed to the `github-issue-creator` skill
 
 ### Examples
 
-- **`examples/sample-task-breakdown.md`** — フェーズ5のタスクリストとフェーズ6のペイロードの実例
+- **`examples/sample-task-breakdown.md`** — Real examples of the Phase 5 task list and Phase 6 payload

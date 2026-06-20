@@ -1,32 +1,32 @@
-# サンプル: タスク分解とIssueペイロード
+# Sample: Task Decomposition and Issue Payload
 
-「ユーザーのお気に入り機能を追加したい」という要件に対するフェーズ5〜6の実行例。
+Example execution of Phases 5–6 for the requirement "I want to add a user favorites feature."
 
 ---
 
-## フェーズ5 出力: タスクリスト
+## Phase 5 Output: Task List
 
-### タスク一覧
+### Task Table
 
-| ID  | タイトル                        | 変更ファイル数 | 依存   |
-| --- | ------------------------------- | -------------- | ------ |
-| T1  | お気に入りストアの実装          | 2              | なし   |
-| T2  | お気に入りAPIクライアントの実装 | 2              | なし   |
-| T3  | お気に入り一覧ページの実装      | 3              | T1, T2 |
+| ID  | Title                           | Files Changed | Dependencies |
+| --- | ------------------------------- | ------------- | ------------ |
+| T1  | お気に入りストアの実装          | 2             | None         |
+| T2  | お気に入りAPIクライアントの実装 | 2             | None         |
+| T3  | お気に入り一覧ページの実装      | 3             | T1, T2       |
 
-### 自己評価結果
+### Self-Evaluation Results
 
-**粒度チェック**: 各タスク 2〜3 ファイル変更。目安（3〜10個）内。問題なし。
+**Granularity check**: Each task changes 2–3 files. Within the guideline (3–10). No issues.
 
-**凝集度チェック**: 全タスクに実装とテストが含まれている。問題なし。
+**Cohesion check**: All tasks include both implementation and tests. No issues.
 
-**独立性チェック**:
+**Independence check**:
 
-- T1 は単独でマージ可能（ストアのみ）
-- T2 は単独でマージ可能（APIクライアントのみ）
-- T3 は T1・T2 完了後にマージ（ページがストアとAPIに依存）
+- T1 can be merged independently (store only)
+- T2 can be merged independently (API client only)
+- T3 must be merged after T1 and T2 are complete (page depends on store and API)
 
-**依存関係マッピング**:
+**Dependency mapping**:
 
 ```
 T1 ──┐
@@ -34,13 +34,13 @@ T1 ──┐
 T2 ──┘
 ```
 
-T1 と T2 は並列実装可能。
+T1 and T2 can be implemented in parallel.
 
-**改善提案**: 現状のタスク分解は適切。分割・統合の必要なし。
+**Improvement proposals**: Current task decomposition is appropriate. No splits or consolidations needed.
 
 ---
 
-## フェーズ6 入力: github-issue-creator ペイロード
+## Phase 6 Input: github-issue-creator Payload
 
 ```json
 {
@@ -100,7 +100,7 @@ T1 と T2 は並列実装可能。
 
 ---
 
-## フェーズ6 出力例: 作成されたIssue構造
+## Phase 6 Output Example: Created Issue Structure
 
 ```
 📋 親Issue
