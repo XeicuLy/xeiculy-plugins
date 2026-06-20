@@ -6,9 +6,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 
 const version = process.argv[2];
+const semverLike = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z-.]+)?(?:\+[0-9A-Za-z-.]+)?$/;
 
 if (!version) {
   console.error('Usage: node scripts/sync-versions.ts <version>');
+  process.exit(1);
+}
+
+if (!semverLike.test(version)) {
+  console.error(`Invalid version: ${version}`);
   process.exit(1);
 }
 
