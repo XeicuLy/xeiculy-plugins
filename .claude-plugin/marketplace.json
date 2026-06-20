@@ -15,7 +15,7 @@
         "source": "git-subdir",
         "url": "https://github.com/XeicuLy/xeiculy-plugins.git",
         "path": "task-planner",
-        "ref": "main"
+        "ref": "v0.1.0"
       },
       "description": "Structured feature planning workflow: requirement clarification → codebase exploration → design comparison → task decomposition → GitHub Issue creation. Enforces phase gates with user approval at each step.",
       "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/task-planner",

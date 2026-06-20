@@ -5,6 +5,8 @@
   "scripts": {
     "setup": "mise install",
     "format": "prettier --write .",
+    "tsc": "tsc --noEmit",
+    "lint": "pnpm format && pnpm tsc",
     "release": "release-it",
     "prepare": "husky"
   },
@@ -13,6 +15,7 @@
     "@commitlint/config-conventional": "21.0.2",
     "@commitlint/types": "21.0.1",
     "@release-it/conventional-changelog": "11.0.1",
+    "@types/node": "24.13.2",
     "husky": "9.1.7",
     "prettier": "3.8.4",
     "release-it": "20.2.0",
