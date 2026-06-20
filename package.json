@@ -1,11 +1,11 @@
 {
   "name": "xeiculy-plugins",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "setup": "mise install",
     "format": "prettier --write ."
   },
-  "packageManager": "pnpm@10.33.0",
   "devDependencies": {
     "prettier": "3.8.4"
   }
