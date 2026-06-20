@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.2.1](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.0...v0.2.1) (2026-06-20)
+
 # 0.2.0 (2026-06-20)
 
 
