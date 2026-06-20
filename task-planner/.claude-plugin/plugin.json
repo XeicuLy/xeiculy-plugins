@@ -1,6 +1,6 @@
 {
   "name": "task-planner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Guides Claude through requirement clarification, codebase exploration, design, task decomposition, and GitHub Issue creation.",
   "author": {
     "name": "XeicuLy",
@@ -9,5 +9,11 @@
   "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/task-planner",
   "repository": "https://github.com/XeicuLy/xeiculy-plugins",
   "license": "MIT",
-  "keywords": ["task", "planning", "github", "issues", "decomposition"]
+  "keywords": [
+    "task",
+    "planning",
+    "github",
+    "issues",
+    "decomposition"
+  ]
 }
