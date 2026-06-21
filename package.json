@@ -8,7 +8,7 @@
     "format": "prettier --write .",
     "tsc": "tsc --noEmit",
     "lint": "pnpm format && pnpm tsc",
-    "release": "tsx scripts/release.ts",
+    "release": "jiti scripts/release.ts",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
     "changelogen": "0.6.2",
     "consola": "3.4.2",
     "husky": "9.1.7",
+    "jiti": "2.7.0",
     "prettier": "3.8.4",
     "semver": "7.8.5",
     "tinyexec": "1.2.4",
