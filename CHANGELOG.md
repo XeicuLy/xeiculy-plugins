@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.3.0](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.2...v0.3.0) (2026-06-21)
+
+
+### Features
+
+* **dev-workflow:** implement-issue と resolve-pr-comments スキルを持つ dev-workflow プラグインを追加 ([#17](https://github.com/XeicuLy/xeiculy-plugins/issues/17)) ([7371add](https://github.com/XeicuLy/xeiculy-plugins/commit/7371addee248cba5792a6d732fae1a9c600ff953))
+
 ## [0.2.2](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.1...v0.2.2) (2026-06-20)
 
 ## [0.2.1](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.0...v0.2.1) (2026-06-20)
