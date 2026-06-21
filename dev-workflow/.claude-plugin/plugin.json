@@ -9,11 +9,5 @@
   "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/dev-workflow",
   "repository": "https://github.com/XeicuLy/xeiculy-plugins",
   "license": "MIT",
-  "keywords": [
-    "github",
-    "workflow",
-    "issue",
-    "pull-request",
-    "tdd"
-  ]
+  "keywords": ["github", "workflow", "issue", "pull-request", "tdd"]
 }
