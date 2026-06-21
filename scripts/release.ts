@@ -52,7 +52,13 @@ async function promptBumpType(): Promise<BumpType> {
 }
 
 async function inferBumpTypeFromCommits(currentVersion: string): Promise<BumpType> {
-  const result = await x('git', ['log', `v${currentVersion}..HEAD`, '--format=%s']);
+  const tagCheck = await x('git', ['tag', '-l', `v${currentVersion}`]);
+  const tagExists = tagCheck.stdout.trim() !== '';
+  if (!tagExists) {
+    consola.warn(`Tag v${currentVersion} not found, analyzing recent commits`);
+  }
+  const range = tagExists ? `v${currentVersion}..HEAD` : 'HEAD~20..HEAD';
+  const result = await x('git', ['log', range, '--format=%s']);
   const subjects = result.stdout.trim().split('\n').filter(Boolean);
   if (subjects.some((s) => /^[a-z]+(\(.+\))?!:/.test(s) || s.includes('BREAKING CHANGE'))) return 'major';
   if (subjects.some((s) => /^feat(\(.+\))?:/.test(s))) return 'minor';
