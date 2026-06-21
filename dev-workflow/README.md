@@ -30,17 +30,17 @@ This plugin requires two external plugins. Install both before use:
 
 ## Installation
 
-```
-/plugin install dev-workflow@xeiculy
+```text
+/plugin install dev-workflow@xeiculy-plugins
 ```
 
 ## How It Works
 
-```
+```text
 User trigger
   └─ implement-issue / resolve-pr-comments
        ├─ Pre-Phase: gh CLI でリポジトリ・Issue/PR 情報を取得
-       ├─ feature-dev:feature-dev へ委譲（7-Phase Workflow）
+       ├─ feature-dev へ委譲（7-Phase Workflow）
        │    └─ 実装フェーズは TDD サイクルで上書き
        └─ Post-Phase: 確認・コミット・(PR コメント返信)
 ```

@@ -39,7 +39,7 @@ gh issue view <Issue番号> --repo "$REPO"
 
 ### Present Classification to User
 
-```
+```text
 ## PR #<番号> レビューコメント対応方針
 
 ### 要対応（<件数>件）
@@ -58,7 +58,7 @@ Use `AskUserQuestion` to confirm 推奨対応 items, then finalize the list of c
 
 ## Phase 2 onwards: `feature-dev` 7-Phase Workflow
 
-```
+```text
 Skill(skill="feature-dev:feature-dev")
 ```
 
@@ -82,7 +82,7 @@ After implementation and commit are complete, reply to each comment on GitHub in
 
 Before committing, use `AskUserQuestion` to present the changes and obtain approval:
 
-```
+```text
 AskUserQuestion(
   questions=[{
     "question": "以下の修正内容を確認してください。問題なければコミットに進みます。\n\n<対応した修正の一覧>",
@@ -104,7 +104,7 @@ After approval, execute the following sequence **without waiting for additional 
 
 **1. Create commit**
 
-```
+```text
 Skill(skill="commit-commands:commit")
 ```
 

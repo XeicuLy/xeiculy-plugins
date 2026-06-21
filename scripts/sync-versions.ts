@@ -25,7 +25,13 @@ function updateJson(filePath: string, updater: (obj: Record<string, unknown>) =>
   writeFileSync(filePath, JSON.stringify(obj, null, 2) + '\n', 'utf-8');
 }
 
-updateJson(resolve(root, '.claude-plugin/marketplace.json'), (obj) => {
+const marketplacePath = resolve(root, '.claude-plugin/marketplace.json');
+const marketplace = JSON.parse(readFileSync(marketplacePath, 'utf-8')) as {
+  plugins: Array<{ source: { path: string } }>;
+};
+const pluginDirs = marketplace.plugins.map((p) => p.source.path);
+
+updateJson(marketplacePath, (obj) => {
   const metadata = obj.metadata as Record<string, unknown>;
   metadata.version = version;
   const plugins = obj.plugins as Array<Record<string, unknown>>;
@@ -35,7 +41,6 @@ updateJson(resolve(root, '.claude-plugin/marketplace.json'), (obj) => {
   }
 });
 
-const pluginDirs = ['task-planner', 'dev-workflow'];
 for (const dir of pluginDirs) {
   updateJson(resolve(root, `${dir}/.claude-plugin/plugin.json`), (obj) => {
     obj.version = version;

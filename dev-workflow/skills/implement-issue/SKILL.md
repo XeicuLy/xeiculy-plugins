@@ -28,7 +28,7 @@ For parent issues, fetch child issues as well and determine implementation order
 
 ## Phase 1 onwards: `feature-dev` 7-Phase Workflow
 
-```
+```text
 Skill(skill="feature-dev:feature-dev")
 ```
 
