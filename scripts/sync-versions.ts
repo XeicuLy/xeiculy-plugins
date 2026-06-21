@@ -29,12 +29,17 @@ updateJson(resolve(root, '.claude-plugin/marketplace.json'), (obj) => {
   const metadata = obj.metadata as Record<string, unknown>;
   metadata.version = version;
   const plugins = obj.plugins as Array<Record<string, unknown>>;
-  const source = plugins[0].source as Record<string, unknown>;
-  source.ref = `v${version}`;
+  for (const plugin of plugins) {
+    const source = plugin.source as Record<string, unknown>;
+    source.ref = `v${version}`;
+  }
 });
 
-updateJson(resolve(root, 'task-planner/.claude-plugin/plugin.json'), (obj) => {
-  obj.version = version;
-});
+const pluginDirs = ['task-planner', 'dev-workflow'];
+for (const dir of pluginDirs) {
+  updateJson(resolve(root, `${dir}/.claude-plugin/plugin.json`), (obj) => {
+    obj.version = version;
+  });
+}
 
-console.log(`Synced version ${version} to marketplace.json and plugin.json`);
+console.log(`Synced version ${version} to marketplace.json and ${pluginDirs.length} plugin.json files`);
