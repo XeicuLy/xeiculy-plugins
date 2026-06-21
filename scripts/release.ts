@@ -28,6 +28,10 @@ async function checkGitStatus(): Promise<void> {
   }
   const branch = (await x('git', ['branch', '--show-current'])).stdout.trim();
   consola.info(`Current branch: ${branch}`);
+  if (branch !== 'main') {
+    consola.error(`Release must be run from main, but current branch is ${branch || '<detached>'}.`);
+    process.exit(1);
+  }
 }
 
 function readCurrentVersion(): string {
@@ -45,6 +49,14 @@ async function promptBumpType(): Promise<BumpType> {
   });
   if (typeof choice === 'symbol') process.exit(0);
   return choice as BumpType;
+}
+
+async function inferBumpTypeFromCommits(currentVersion: string): Promise<BumpType> {
+  const result = await x('git', ['log', `v${currentVersion}..HEAD`, '--format=%s']);
+  const subjects = result.stdout.trim().split('\n').filter(Boolean);
+  if (subjects.some((s) => /^[a-z]+(\(.+\))?!:/.test(s) || s.includes('BREAKING CHANGE'))) return 'major';
+  if (subjects.some((s) => /^feat(\(.+\))?:/.test(s))) return 'minor';
+  return 'patch';
 }
 
 function updateJsonFile(
@@ -113,8 +125,8 @@ async function run(): Promise<void> {
     bumpType = 'patch';
     consola.info('[dry-run] No bump type specified — defaulting to patch');
   } else if (isCI) {
-    consola.error('CI mode requires a version_type argument: patch | minor | major');
-    process.exit(1);
+    bumpType = await inferBumpTypeFromCommits(currentVersion);
+    consola.info(`[CI] Auto-detected bump type from commits: ${bumpType}`);
   } else {
     bumpType = await promptBumpType();
   }
