@@ -3,6 +3,28 @@
 # [0.3.0](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.2...v0.3.0) (2026-06-21)
 
 
+## v0.3.0...main
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.3.0...main)
+
+### ✨ Features
+
+- **release:** Scripts/release.ts 実装 ([#24](https://github.com/XeicuLy/xeiculy-plugins/pull/24))
+
+### 🏡 Chore
+
+- **commitlint:** Subject の文頭大文字を許可する ([fd1c09a](https://github.com/XeicuLy/xeiculy-plugins/commit/fd1c09a))
+- **release:** Changelogen 導入・release-it 削除・changelog.config.ts 追加 ([#23](https://github.com/XeicuLy/xeiculy-plugins/pull/23))
+
+### 🤖 CI
+
+- **release:** Release.yml を workflow_dispatch トリガーに移行 ([#25](https://github.com/XeicuLy/xeiculy-plugins/pull/25))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+- XeicuLy ([@XeicuLy](https://github.com/XeicuLy))
+
 ### Features
 
 * **dev-workflow:** implement-issue と resolve-pr-comments スキルを持つ dev-workflow プラグインを追加 ([#17](https://github.com/XeicuLy/xeiculy-plugins/issues/17)) ([7371add](https://github.com/XeicuLy/xeiculy-plugins/commit/7371addee248cba5792a6d732fae1a9c600ff953))
