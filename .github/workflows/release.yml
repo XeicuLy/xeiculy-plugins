@@ -1,9 +1,18 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Release type: auto (detect from commits), patch, minor, major'
+        required: false
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+        default: auto
 
 permissions:
   contents: write
@@ -14,7 +23,7 @@ concurrency:
 
 jobs:
   release:
-    if: github.actor != 'github-actions[bot]'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -33,11 +42,18 @@ jobs:
 
       - name: Configure git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "XeicuLy"
+          git config user.email "106128913+XeicuLy@users.noreply.github.com"
 
       - name: Release
-        run: pnpm release --ci
+        run: |
+          if [ "$VERSION_TYPE" = "auto" ] || [ -z "$VERSION_TYPE" ]; then
+            pnpm release --ci
+          else
+            pnpm release --ci "$VERSION_TYPE"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: 0
+          VERSION_TYPE: ${{ inputs.version_type }}
