@@ -2,3 +2,4 @@ pnpm-lock.yaml
 .claude
 task-planner/.claude-plugin/plugin.json
 CHANGELOG.md
+dev-workflow/.claude-plugin/plugin.json
