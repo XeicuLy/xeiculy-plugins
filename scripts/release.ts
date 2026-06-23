@@ -87,7 +87,7 @@ async function runCmd(cmd: string, args: string[], dryRun: boolean, label?: stri
     consola.info(`[dry-run] Would run: ${display}`);
     return '';
   }
-  const result = await x(cmd, args, { nodeOptions: { cwd: root } });
+  const result = await x(cmd, args, { nodeOptions: { cwd: root }, throwOnError: true });
   return result.stdout;
 }
 
@@ -157,9 +157,9 @@ async function run(): Promise<void> {
   // Generate changelog
   await runCmd(
     'changelogen',
-    ['--output', 'CHANGELOG.md', '--from', `v${currentVersion}`],
+    ['--output', 'CHANGELOG.md', '--from', `v${currentVersion}`, '-r', newVersion],
     dryRun,
-    `changelogen --output CHANGELOG.md --from v${currentVersion}`,
+    `changelogen --output CHANGELOG.md --from v${currentVersion} -r ${newVersion}`,
   );
   if (!dryRun) consola.success('Changelog generated');
 
@@ -171,13 +171,18 @@ async function run(): Promise<void> {
   const commitMsg = `chore(release): v${newVersion}`;
   if (dryRun) {
     consola.info(`[dry-run] Would run: git add -A && git commit -m "${commitMsg}"`);
-    consola.info(`[dry-run] Would run: git tag v${newVersion} && git push --follow-tags`);
+    consola.info(
+      `[dry-run] Would run: git tag -a v${newVersion} -m "Release v${newVersion}" && git push --follow-tags`,
+    );
   } else {
-    await x('git', ['add', '-A'], { nodeOptions: { cwd: root } });
-    await x('git', ['commit', '-m', commitMsg], { nodeOptions: { cwd: root } });
+    await x('git', ['add', '-A'], { nodeOptions: { cwd: root }, throwOnError: true });
+    await x('git', ['commit', '-m', commitMsg], { nodeOptions: { cwd: root }, throwOnError: true });
     consola.success(`Committed: ${commitMsg}`);
-    await x('git', ['tag', `v${newVersion}`], { nodeOptions: { cwd: root } });
-    await x('git', ['push', '--follow-tags'], { nodeOptions: { cwd: root } });
+    await x('git', ['tag', '-a', `v${newVersion}`, '-m', `Release v${newVersion}`], {
+      nodeOptions: { cwd: root },
+      throwOnError: true,
+    });
+    await x('git', ['push', '--follow-tags'], { nodeOptions: { cwd: root }, throwOnError: true });
     consola.success('Pushed tag to remote');
   }
 
@@ -194,6 +199,7 @@ async function run(): Promise<void> {
       writeFileSync(notesFile, notes, 'utf-8');
       await x('gh', ['release', 'create', `v${newVersion}`, '--title', `v${newVersion}`, '--notes-file', notesFile], {
         nodeOptions: { cwd: root },
+        throwOnError: true,
       });
       consola.success(`GitHub Release v${newVersion} created`);
     } finally {
