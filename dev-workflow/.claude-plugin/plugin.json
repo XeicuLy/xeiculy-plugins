@@ -1,6 +1,6 @@
 {
   "name": "dev-workflow",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "GitHub Issue implementation and PR review comment resolution workflows with TDD enforcement.",
   "author": {
     "name": "XeicuLy",
@@ -9,5 +9,11 @@
   "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/dev-workflow",
   "repository": "https://github.com/XeicuLy/xeiculy-plugins",
   "license": "MIT",
-  "keywords": ["github", "workflow", "issue", "pull-request", "tdd"]
+  "keywords": [
+    "github",
+    "workflow",
+    "issue",
+    "pull-request",
+    "tdd"
+  ]
 }

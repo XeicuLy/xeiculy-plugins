@@ -1,6 +1,6 @@
 {
   "name": "task-planner",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Guides Claude through requirement clarification, codebase exploration, design, task decomposition, and GitHub Issue creation.",
   "author": {
     "name": "XeicuLy",

@@ -3,6 +3,23 @@
 # [0.3.0](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.2...v0.3.0) (2026-06-21)
 
 
+## v0.4.1
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.4.0...v0.4.1)
+
+### 🐛 Bug Fixes
+
+- **docs:** CHANGELOG.md の v0.4.0 セクションヘッダーを修正 ([#29](https://github.com/XeicuLy/xeiculy-plugins/pull/29))
+- **release:** Scripts/release.ts のリリースバグを修正 ([#30](https://github.com/XeicuLy/xeiculy-plugins/pull/30))
+
+### 📖 Documentation
+
+- **release:** CLAUDE.md リリース手順を新フローに更新 ([#31](https://github.com/XeicuLy/xeiculy-plugins/pull/31))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v0.4.0
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.3.0...v0.4.0)
