@@ -56,7 +56,7 @@ pnpm tsc        # 型チェックのみ
 
 ### バージョン管理
 
-`marketplace.json` がバージョンの単一ソースです。リリース時に `scripts/sync-versions.ts` が自動で `task-planner/plugin.json` へ同期します。手動でバージョンを書き換えないでください。
+`marketplace.json` がバージョンの単一ソースです。`scripts/sync-versions.ts` が `marketplace.json` と全 `plugin.json` へバージョンを同期します。`changelogen` は `CHANGELOG.md` の生成のみに使用します。手動でバージョンを書き換えないでください。
 
 ### ローカルからリリース
 
@@ -66,11 +66,23 @@ pnpm release
 
 対話式プロンプトでバージョン（patch / minor / major）を選択すると、以下が自動実行されます：
 
-1. `marketplace.json` と `plugin.json` のバージョンを更新
-2. `CHANGELOG.md` を生成・更新
+1. `CHANGELOG.md` を生成・更新（`changelogen`）
+2. `marketplace.json` と全 `plugin.json` のバージョンを更新（`sync-versions.ts`）
 3. git タグ（`v<version>`）を作成してプッシュ
 4. GitHub Release を作成
 
-### CI 自動リリース
+変更せずにリリースフローを確認したい場合はドライランを使います：
 
-`main` ブランチへのプッシュ時に GitHub Actions が `pnpm release --ci` を実行します（`.github/workflows/release.yml`）。
+```bash
+pnpm release --dry-run
+```
+
+### CI リリース
+
+GitHub Actions の手動トリガーでリリースを実行します：
+
+1. GitHub リポジトリ → **Actions** → **Release** ワークフローを選択
+2. **Run workflow** をクリック
+3. `version_type` を選択（`auto` / `patch` / `minor` / `major`）して実行
+
+`auto` を選択すると、コミット履歴からバージョン種別を自動判定します（`feat:` → minor、破壊的変更 → major、それ以外 → patch）。
