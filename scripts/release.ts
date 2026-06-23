@@ -171,7 +171,9 @@ async function run(): Promise<void> {
   const commitMsg = `chore(release): v${newVersion}`;
   if (dryRun) {
     consola.info(`[dry-run] Would run: git add -A && git commit -m "${commitMsg}"`);
-    consola.info(`[dry-run] Would run: git tag v${newVersion} && git push --follow-tags`);
+    consola.info(
+      `[dry-run] Would run: git tag -a v${newVersion} -m "Release v${newVersion}" && git push --follow-tags`,
+    );
   } else {
     await x('git', ['add', '-A'], { nodeOptions: { cwd: root }, throwOnError: true });
     await x('git', ['commit', '-m', commitMsg], { nodeOptions: { cwd: root }, throwOnError: true });
