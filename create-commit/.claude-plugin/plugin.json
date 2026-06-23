@@ -1,0 +1,13 @@
+{
+  "name": "create-commit",
+  "version": "0.4.1",
+  "description": "Git commit creation, commit-push-PR workflow, and gone branch cleanup skills following Conventional Commits.",
+  "author": {
+    "name": "XeicuLy",
+    "url": "https://github.com/XeicuLy"
+  },
+  "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/create-commit",
+  "repository": "https://github.com/XeicuLy/xeiculy-plugins",
+  "license": "MIT",
+  "keywords": ["git", "commit", "conventional-commits", "pull-request", "branch"]
+}
