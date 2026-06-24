@@ -1,6 +1,6 @@
 {
   "name": "create-commit",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Git commit creation, commit-push-PR workflow, and gone branch cleanup skills following Conventional Commits.",
   "author": {
     "name": "XeicuLy",
