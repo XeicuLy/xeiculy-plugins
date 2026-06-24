@@ -105,7 +105,7 @@ After approval, execute the following sequence **without waiting for additional 
 **1. Create commit**
 
 ```text
-Skill(skill="commit-commands:commit")
+Skill(skill="create-commit:commit")
 ```
 
 **2. Push immediately after commit**
