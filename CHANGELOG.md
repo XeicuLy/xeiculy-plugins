@@ -3,6 +3,32 @@
 # [0.3.0](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.2...v0.3.0) (2026-06-21)
 
 
+## v0.5.1
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.5.0...v0.5.1)
+
+### 🐛 Bug Fixes
+
+- **dev-workflow:** Resolve-pr-comments の commit-commands:commit 参照を create-commit:commit に更新する ([#50](https://github.com/XeicuLy/xeiculy-plugins/pull/50))
+
+### ♻️ Refactors
+
+- **create-commit:** スキルのトークン消費を最適化する ([#53](https://github.com/XeicuLy/xeiculy-plugins/pull/53))
+
+### 📖 Documentation
+
+- **create-commit:** README.md を新規作成する ([#51](https://github.com/XeicuLy/xeiculy-plugins/pull/51))
+- **root:** ルート README.md に create-commit エントリを追加する ([#52](https://github.com/XeicuLy/xeiculy-plugins/pull/52))
+
+### 🏡 Chore
+
+- .prettierignore の .claude-plugin 除外をワイルドカードに統一する ([002470a](https://github.com/XeicuLy/xeiculy-plugins/commit/002470a))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+- XeicuLy ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v0.5.0
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.4.1...v0.5.0)
