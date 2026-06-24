@@ -1,10 +1,10 @@
 ---
 name: commit-push-pr
-description: >
-  This skill should be used when the user asks to "commit and push", "commit push PR",
-  "コミットしてPRを作成", "PR を作って", "コミットからPRまで一気にやって",
-  "push して PR を出して", "変更をコミットしてプルリクを作りたい".
-  Handles the full flow: commit → git push → Japanese PR creation.
+description: Full workflow from commit to push to Japanese PR creation.
+when_to_use: >
+  "commit and push", "commit push PR", "コミットしてPRを作成", "PR を作って", "push して PR を出して".
+disable-model-invocation: true
+allowed-tools: Bash(git push *) Bash(gh pr create *)
 ---
 
 # Commit Push PR Skill
@@ -47,45 +47,9 @@ If the push fails (e.g., remote rejected, no upstream), report the error and sto
 
 ## Step 3: Generate PR Title and Body
 
-Read `../../references/pr-template.md` to understand the format rules.
+Read `../../references/pr-template.md` for title format, body sections, section rules, and draft PR criteria.
 
-Generate the PR title and body **in Japanese** following the template:
-
-**Title format:**
-
-```text
-<type>(<scope>): <日本語の1行説明>
-```
-
-**Body format:**
-
-```markdown
-## 背景
-
-<なぜこの変更が必要か>
-
-## 変更内容
-
-- <変更点1>
-- <変更点2>
-
-## テスト方法
-
-1. <手順1>
-
-## 関連 Issue
-
-closes #<Issue番号>
-```
-
-Infer the type, scope, and content from the commit message created in Step 1 and the staged diff. Refer to `../../references/pr-template.md` for detailed rules and examples.
-
-**Draft PR criteria**: Apply `--draft` if any of the following are true:
-
-- PR title contains `WIP` or `wip`
-- Commit message contains `WIP`
-- Branch name starts with `wip/`
-- User explicitly requested a draft
+Infer type, scope, and content from the commit message (Step 1) and the staged diff.
 
 ---
 
@@ -114,40 +78,7 @@ If the user selects "内容を修正する", ask what to change, update the titl
 
 ## Step 5: Create PR
 
-Execute `gh pr create` with the confirmed title and body:
-
-```bash
-gh pr create \
-  --title "<type>(<scope>): <日本語の1行説明>" \
-  --body "$(cat <<'EOF'
-## 背景
-
-<背景を記述>
-
-## 変更内容
-
-- <変更点1>
-
-## テスト方法
-
-1. <手順1>
-
-## 関連 Issue
-
-closes #<Issue番号>
-EOF
-)" \
-  --base main
-```
-
-For draft PRs, add `--draft`:
-
-```bash
-gh pr create --draft \
-  --title "..." \
-  --body "..." \
-  --base main
-```
+Execute `gh pr create` using the command format in `../../references/pr-template.md`. Add `--draft` if applicable per draft criteria.
 
 Report the resulting PR URL to the user.
 
