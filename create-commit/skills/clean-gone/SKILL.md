@@ -1,9 +1,10 @@
 ---
 name: clean-gone
-description: >
-  This skill should be used when the user asks to "clean gone branches", "gone ブランチを削除",
-  "リモートで削除されたブランチを整理", "不要なブランチを削除", "gone ブランチをクリーンアップ".
-  Cleans up local branches whose remote tracking branch has been deleted.
+description: Clean up local branches whose remote tracking branch has been deleted.
+when_to_use: >
+  "clean gone branches", "gone ブランチを削除", "リモートで削除されたブランチを整理", "不要なブランチを削除".
+disable-model-invocation: true
+allowed-tools: Bash(git fetch *) Bash(git branch *)
 ---
 
 # Clean Gone Branches Skill
@@ -106,8 +107,4 @@ Report success or failure for each branch.
 
 ## Step 7: Report Results
 
-Summarize what was deleted:
-
-- List of successfully deleted branches
-- List of skipped branches (if any), with reason
-- Any errors encountered
+Report each branch as deleted, skipped (with reason), or errored.
