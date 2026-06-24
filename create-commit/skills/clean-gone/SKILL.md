@@ -20,13 +20,17 @@ This removes stale remote-tracking refs and prevents false positives from outdat
 
 ## Step 2: List Gone Branches
 
+Capture the output without relying on grep's exit code:
+
 ```bash
-git branch -vv | grep ': gone]'
+gone_branches=$(git branch -vv | grep ': gone]' || true)
 ```
 
-Parse the output to extract branch names (first column, stripping leading `*` if present).
+The `|| true` prevents exit code 1 (no matches) from being treated as an error.
 
-If no branches are found, report "削除対象の gone ブランチはありません" and stop.
+Parse `gone_branches` to extract branch names (first column, stripping leading `*` if present).
+
+If `gone_branches` is empty, report "削除対象の gone ブランチはありません" and stop.
 
 ## Step 3: Ask User to Select Branches for Deletion
 
@@ -56,10 +60,14 @@ For each selected branch, check if it is fully merged into the current branch:
 
 ```bash
 git branch --merged | grep -w "<branch-name>"
+grep_exit=$?
 ```
 
-- **Merged**: safe to delete with `git branch -d`
-- **Unmerged**: requires force delete with `git branch -D` — must get explicit user confirmation first
+Interpret the exit code explicitly:
+
+- **exit 0** (match found) → **Merged**: safe to delete with `git branch -d`
+- **exit 1** (no match) → **Unmerged**: requires force delete with `git branch -D` — must get explicit user confirmation first
+- **exit 2+** (grep error) → treat as an actual error and abort
 
 ## Step 5: Confirm Force Deletion for Unmerged Branches
 
