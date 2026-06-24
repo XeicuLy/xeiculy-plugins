@@ -1,8 +1,5 @@
 # Changelog
 
-# [0.3.0](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.2...v0.3.0) (2026-06-21)
-
-
 ## v0.5.0
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.4.1...v0.5.0)
