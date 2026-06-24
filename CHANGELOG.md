@@ -3,6 +3,32 @@
 # [0.3.0](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.2.2...v0.3.0) (2026-06-21)
 
 
+## v0.5.0
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.4.1...v0.5.0)
+
+### ✨ Features
+
+- **create-commit:** プラグイン骨格を生成する ([#33](https://github.com/XeicuLy/xeiculy-plugins/pull/33), [#41](https://github.com/XeicuLy/xeiculy-plugins/pull/41))
+- **commit:** Skills/commit/SKILL.md を実装する ([#44](https://github.com/XeicuLy/xeiculy-plugins/pull/44))
+- **commit-push-pr:** Skills/commit-push-pr/SKILL.md を実装する ([#45](https://github.com/XeicuLy/xeiculy-plugins/pull/45))
+- **create-commit:** Skills/clean_gone/SKILL.md を実装する ([#46](https://github.com/XeicuLy/xeiculy-plugins/pull/46))
+- **create-commit:** Marketplace.json に create-commit エントリを追加する ([#47](https://github.com/XeicuLy/xeiculy-plugins/pull/47))
+
+### 📖 Documentation
+
+- **create-commit:** Conventional Commits と日本語 body ルールを commit-format.md に定義する ([#42](https://github.com/XeicuLy/xeiculy-plugins/pull/42))
+- **create-commit:** References/pr-template.md で PR 日本語生成ルールを定義する ([#43](https://github.com/XeicuLy/xeiculy-plugins/pull/43))
+
+### 🏡 Chore
+
+- **commitlint:** Body-max-line-length ルールを無効化する ([eac5b74](https://github.com/XeicuLy/xeiculy-plugins/commit/eac5b74))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+- XeicuLy ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v0.4.1
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.4.0...v0.4.1)
