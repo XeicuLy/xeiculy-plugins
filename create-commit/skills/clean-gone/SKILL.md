@@ -4,7 +4,7 @@ description: Clean up local branches whose remote tracking branch has been delet
 when_to_use: >
   "clean gone branches", "gone ブランチを削除", "リモートで削除されたブランチを整理", "不要なブランチを削除".
 disable-model-invocation: true
-allowed-tools: Bash(git fetch *) Bash(git branch *)
+allowed-tools: Bash(git fetch *) Bash(git branch *) Bash(grep *)
 ---
 
 # Clean Gone Branches Skill

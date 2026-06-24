@@ -11,7 +11,7 @@ allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git comm
 
 Read `../../references/commit-format.md` before generating any commit message.
 
-> **Delegation mode**: If invoked from another skill (e.g., `commit-push-pr`), trust the caller has staged the appropriate files — skip Step 3 — and skip the `AskUserQuestion` in Step 6. Proceed directly to Step 4.
+> **Delegation mode**: If invoked from another skill (e.g., `commit-push-pr`), skip only the `AskUserQuestion` in Step 6. Step 3 still runs when the staged diff is empty (same condition as normal mode) so that unstaged tracked changes are not missed.
 
 ## Context
 
