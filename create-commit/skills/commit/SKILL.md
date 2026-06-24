@@ -34,6 +34,14 @@ If nothing is staged, stage all tracked modified files:
 git add -u
 ```
 
+Then verify that files were actually staged:
+
+```bash
+git diff --staged --stat
+```
+
+If the output is empty (no tracked files were modified), report that there is nothing to commit and stop execution.
+
 Do not run `git add .` or `git add -A` without explicit user confirmation — untracked files may include secrets or generated artifacts.
 
 > **Delegation mode**: If this skill was invoked from another skill (e.g., `commit-push-pr`, `resolve-pr-comments`), trust the caller has already staged the appropriate files. Skip to Step 4.
