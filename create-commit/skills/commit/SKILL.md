@@ -3,7 +3,6 @@ name: commit
 description: Create a git commit following Conventional Commits conventions.
 when_to_use: >
   Trigger phrases: "commit", "コミット", "コミットして", "変更をコミット".
-disable-model-invocation: true
 allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *)
 ---
 
