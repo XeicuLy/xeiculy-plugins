@@ -39,6 +39,9 @@ gh api graphql -f query="
         number
         title
         body
+        repository {
+          nameWithOwner
+        }
       }
     }
   }
@@ -49,7 +52,7 @@ If a parent issue exists:
 
 1. Fetch the full parent issue content:
    ```bash
-   gh issue view <親Issue番号> --repo "$REPO"
+   gh issue view <親Issue番号> --repo "<parent.repository.nameWithOwner>"
    ```
 2. Understand the parent's overall goal: what the parent issue is trying to achieve end-to-end.
 3. Identify where the current issue fits within that goal — which phase, step, or concern it addresses.
