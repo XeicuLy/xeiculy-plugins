@@ -24,6 +24,45 @@ Understand the following:
 If dependent issues are incomplete, report to the user and stop.
 For parent issues, fetch child issues as well and determine implementation order.
 
+### Parent Issue Resolution
+
+After fetching the target issue, check whether it has a parent issue using the GitHub GraphQL API:
+
+```bash
+OWNER=$(gh repo view --json owner --jq '.owner.login')
+NAME=$(gh repo view --json name --jq '.name')
+gh api graphql -f query="
+{
+  repository(owner: \"$OWNER\", name: \"$NAME\") {
+    issue(number: <Issue番号>) {
+      parent {
+        number
+        title
+        body
+        repository {
+          nameWithOwner
+        }
+      }
+    }
+  }
+}"
+```
+
+If a parent issue exists:
+
+1. Fetch the full parent issue content:
+   ```bash
+   gh issue view <親Issue番号> --repo "<parent.repository.nameWithOwner>"
+   ```
+2. Understand the parent's overall goal: what the parent issue is trying to achieve end-to-end.
+3. Identify where the current issue fits within that goal — which phase, step, or concern it addresses.
+4. Before handing off to `feature-dev`, present a context summary:
+   - **Overall goal** (from parent): what the feature/initiative is trying to accomplish
+   - **Current scope** (this issue): which part of that goal is being implemented now
+   - **Remaining scope** (sibling issues, if any): what comes before or after
+
+This framing ensures that implementation decisions (API shape, data structures, abstractions) are made with the full picture in mind rather than the issue in isolation.
+
 ---
 
 ## Phase 1 onwards: `feature-dev` 7-Phase Workflow
