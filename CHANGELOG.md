@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.6.0
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.5.1...v0.6.0)
+
+### ✨ Features
+
+- **implement-issue:** 親Issueの情報を取得してコンテキストを提示する ([#54](https://github.com/XeicuLy/xeiculy-plugins/pull/54))
+
+### 📖 Documentation
+
+- CHANGELOG.md から重複した v0.3.0 セクションを削除する ([f270b17](https://github.com/XeicuLy/xeiculy-plugins/commit/f270b17))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+- XeicuLy ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v0.5.1
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.5.0...v0.5.1)
