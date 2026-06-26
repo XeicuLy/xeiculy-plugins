@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.6.1
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.6.0...v0.6.1)
+
+### 🐛 Bug Fixes
+
+- **commit:** Commit スキルから disable-model-invocation フラグを削除する ([#55](https://github.com/XeicuLy/xeiculy-plugins/pull/55))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v0.6.0
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.5.1...v0.6.0)

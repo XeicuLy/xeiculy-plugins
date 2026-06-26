@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Claude Code plugins by XeicuLy — task planning, GitHub Issue implementation, and PR review workflows",
-    "version": "0.6.0"
+    "version": "0.6.1"
   },
   "plugins": [
     {
@@ -15,7 +15,7 @@
         "source": "git-subdir",
         "url": "https://github.com/XeicuLy/xeiculy-plugins.git",
         "path": "task-planner",
-        "ref": "v0.6.0"
+        "ref": "v0.6.1"
       },
       "description": "Structured feature planning workflow: requirement clarification → codebase exploration → design comparison → task decomposition → GitHub Issue creation. Enforces phase gates with user approval at each step.",
       "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/task-planner",
@@ -27,7 +27,7 @@
         "source": "git-subdir",
         "url": "https://github.com/XeicuLy/xeiculy-plugins.git",
         "path": "dev-workflow",
-        "ref": "v0.6.0"
+        "ref": "v0.6.1"
       },
       "description": "GitHub Issue implementation and PR review comment resolution workflows with TDD enforcement. Delegates to feature-dev 7-Phase Workflow and replies to each PR comment individually after implementation.",
       "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/dev-workflow",
@@ -39,7 +39,7 @@
         "source": "git-subdir",
         "url": "https://github.com/XeicuLy/xeiculy-plugins.git",
         "path": "create-commit",
-        "ref": "v0.6.0"
+        "ref": "v0.6.1"
       },
       "description": "Git commit, push, PR creation, and branch cleanup skills with Japanese message generation.",
       "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/create-commit",
