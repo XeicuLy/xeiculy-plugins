@@ -86,10 +86,15 @@ If the cohesion of changes is high, do not force a split even if the size exceed
 
 ---
 
-## 5 Perspectives for Evaluating a Task List
+## 6 Perspectives for Evaluating a Task List
 
 1. **Granularity check**: Is each task size appropriate? Are there any that are too large or too small?
 2. **Cohesion check**: Are implementation and tests in the same task?
 3. **Independence check**: Can each task be reverted independently? Does the app work correctly after merging?
 4. **Dependency mapping**: Are dependencies between tasks clear? Are tasks that can be implemented in parallel identified?
 5. **Improvement proposals**: If there are problems, specific recommendations on which tasks to split or consolidate
+6. **Educational context check**: Does each task's `learning_context` provide sufficient content for a first-time implementer?
+   - `background` is present and explains why the change is necessary
+   - `hints` are grounded in the actual codebase (not generic advice)
+   - `references` include at least one file:line pointer (e.g., `src/stores/cart.ts:42`)
+   - `pre_implementation_checklist` contains 3–5 concrete items to verify before coding
