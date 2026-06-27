@@ -104,8 +104,8 @@ T1 and T2 can be implemented in parallel.
         "background": "コンポーネントが直接 fetch/axios を呼ぶ設計にすると、エンドポイントURLやヘッダー設定が各コンポーネントに散らばります。APIクライアント層を一か所に集めることで「エンドポイントが変わった→このファイルだけ直す」という修正範囲の局所化が実現できます。",
         "hints": [
           "GET はこう書く: `export const getFavorites = (): Promise<string[]> => client.get('/favorites').then(res => res.data)` — client は src/api/client.ts の axios インスタンス",
-          "DELETE のパスパラメータは動的に作る: `export const removeFavorite = (id: string) => client.delete(\\`/favorites/${id}\\`)`",
-          "テストで実際のHTTP通信を防ぐ: `vi.mock('../../api/client')` でモジュールごと差し替え、`(client.get as Mock).mockResolvedValue({ data: ['item1'] })` で戻り値を制御する"
+          "DELETE のパスパラメータは動的に作る: `export const removeFavorite = (id: string) => client.delete('/favorites/' + id)` — テンプレートリテラルで /favorites/${id} のようなパスを動的に生成できる",
+          "テストで実際のHTTP通信を防ぐ: `vi.mock('./client')` でモジュールごと差し替え、`(client.get as Mock).mockResolvedValue({ data: ['item1'] })` で戻り値を制御する"
         ],
         "references": [
           "src/api/user.ts:8 — GET/POST/DELETE 各メソッドの呼び出し形式と型定義パターンを確認する",
