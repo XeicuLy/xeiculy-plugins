@@ -38,6 +38,12 @@ T1 and T2 can be implemented in parallel.
 
 **Improvement proposals**: Current task decomposition is appropriate. No splits or consolidations needed.
 
+**Educational context check**:
+
+- T1: `background` explains why the favorites store must be implemented before the page component. `hints` reference the existing `src/stores/user.ts` pattern and test setup. `references` include file:line pointers. `pre_implementation_checklist` has 4 items. No issues.
+- T2: `background` explains the benefit of isolating the API client layer. `hints` reference `src/api/client.ts` to avoid duplicating HTTP configuration. `references` include file:line pointers. `pre_implementation_checklist` has 3 items. No issues.
+- T3: `background` explains why T1 and T2 must be complete before implementation. `hints` reference existing page component patterns and router configuration. `references` include file:line pointers. `pre_implementation_checklist` has 4 items. No issues.
+
 ---
 
 ## Phase 6 Input: github-issue-creator Payload
@@ -60,6 +66,25 @@ T1 and T2 can be implemented in parallel.
         "addFavorite / removeFavorite / fetchFavorites アクションを実装する",
         "各アクションのユニットテストを追加する"
       ],
+      "learning_context": {
+        "background": "Piniaストアはアプリ全体の状態をリアクティブに管理するレイヤーです。コンポーネントが直接 API を呼ぶ設計にすると、複数のページで状態が重複して管理されバグの温床になります。ストアを中間に置くことで「状態の唯一の場所（single source of truth）」が生まれます。favoritesストアはT2・T3の両方から使われるため最初に実装します。",
+        "hints": [
+          "ストアの基本形はこう書く: `export const useFavoritesStore = defineStore('favorites', () => { const itemIds = ref<string[]>([]); const addFavorite = (id: string) => { itemIds.value.push(id) }; return { itemIds, addFavorite } })` — Composition API スタイルで ref() が状態、関数がアクション",
+          "テストの冒頭に必ず `beforeEach(() => { setActivePinia(createPinia()) })` を入れる — これがないと前のテストの状態が残り、テストが互いに影響し合う",
+          "既存の src/stores/user.ts:15 のアクション定義を見れば、async/await と try-catch をどう組み合わせるかが分かる"
+        ],
+        "references": [
+          "src/stores/user.ts:15 — 非同期アクションと try-catch のパターンを確認する",
+          "src/stores/cart.ts:12 — 配列状態（items[]）の追加・削除操作の書き方を確認する",
+          "https://pinia.vuejs.org/core-concepts/ — defineStore の基本概念（Setup Store vs Options Store）"
+        ],
+        "pre_implementation_checklist": [
+          "既存のストア実装（src/stores/user.ts）を読み、defineStore の呼び出し形式を確認した",
+          "Pinia がプロジェクトに導入済みであることを確認した（package.json に pinia がある）",
+          "追加するストアID 'favorites' が既存のストアと衝突しないことを確認した",
+          "src/stores/index.ts へのエクスポート追加が必要か確認した"
+        ]
+      },
       "depends_on": []
     },
     {
@@ -75,6 +100,24 @@ T1 and T2 can be implemented in parallel.
         "エラーハンドリングを共通のAPIクライアントパターンに合わせる",
         "モックを使ったユニットテストを追加する"
       ],
+      "learning_context": {
+        "background": "コンポーネントが直接 fetch/axios を呼ぶ設計にすると、エンドポイントURLやヘッダー設定が各コンポーネントに散らばります。APIクライアント層を一か所に集めることで「エンドポイントが変わった→このファイルだけ直す」という修正範囲の局所化が実現できます。",
+        "hints": [
+          "GET はこう書く: `export const getFavorites = (): Promise<string[]> => client.get('/favorites').then(res => res.data)` — client は src/api/client.ts の axios インスタンス",
+          "DELETE のパスパラメータは動的に作る: `export const removeFavorite = (id: string) => client.delete(\\`/favorites/${id}\\`)`",
+          "テストで実際のHTTP通信を防ぐ: `vi.mock('../../api/client')` でモジュールごと差し替え、`(client.get as Mock).mockResolvedValue({ data: ['item1'] })` で戻り値を制御する"
+        ],
+        "references": [
+          "src/api/user.ts:8 — GET/POST/DELETE 各メソッドの呼び出し形式と型定義パターンを確認する",
+          "src/api/client.ts:1 — axios インスタンスの作り方（baseURL・headers 設定）を確認する",
+          "https://vitest.dev/guide/mocking.html — vi.mock の使い方と mockResolvedValue の書き方"
+        ],
+        "pre_implementation_checklist": [
+          "既存の src/api/user.ts を読み、関数の型定義と戻り値の扱いを確認した",
+          "バックエンドAPIの仕様（エンドポイント・リクエスト/レスポンスのJSON形式）を確認した",
+          "共通APIクライアント（src/api/client.ts）のエラーハンドリング方針を確認した"
+        ]
+      },
       "depends_on": []
     },
     {
@@ -92,6 +135,26 @@ T1 and T2 can be implemented in parallel.
         "お気に入りが0件の場合の空状態UIを実装する",
         "コンポーネントテストを追加する"
       ],
+      "learning_context": {
+        "background": "Vueのページコンポーネントはルーターで URL に紐づけて初めてアプリに統合されます。T1・T2 が揃った後にこのタスクを実装することで、ストアとAPIクライアントを組み合わせた「動く画面」として機能します。コンポーネント単体では何も動かない、という設計上の役割を意識してください。",
+        "hints": [
+          "コンポーネントの起点はこう書く: `<script setup lang=\"ts\">\\nconst store = useFavoritesStore()\\nconst { itemIds } = storeToRefs(store)\\nonMounted(() => store.fetchFavorites())\\n</script>` — storeToRefs を使わないと template 内でリアクティビティが失われる",
+          "空状態の分岐はこう書く: `<template>\\n  <ul v-if=\"itemIds.length > 0\">...</ul>\\n  <p v-else>お気に入りはまだありません</p>\\n</template>`",
+          "ルートの追加は src/router/index.ts の routes 配列に `{ path: '/favorites', name: 'favorites', component: () => import('@/pages/FavoritesPage.vue') }` を1行追加するだけ — lazy import（`() => import(...)`）が既存パターン"
+        ],
+        "references": [
+          "src/pages/ProductListPage.vue:1 — script setup の全体構造と onMounted でのデータ取得パターンを確認する",
+          "src/router/index.ts:20 — routes 配列への追加形式と lazy import の書き方を確認する",
+          "src/stores/favorites.ts:1 — T1 で実装したストアの公開 API（何が return されているか）を確認する",
+          "https://vuejs.org/guide/components/script-setup.html — script setup 構文の基礎"
+        ],
+        "pre_implementation_checklist": [
+          "T1（お気に入りストア）の実装が完了し、useFavoritesStore が動作することを確認した",
+          "T2（お気に入りAPIクライアント）の実装が完了していることを確認した",
+          "既存ページコンポーネント（src/pages/ProductListPage.vue）を読み、script setup の構造を把握した",
+          "ルーターのパス命名規則を既存ルートと一致させた（例: /favorites）"
+        ]
+      },
       "depends_on": ["T1", "T2"]
     }
   ]
