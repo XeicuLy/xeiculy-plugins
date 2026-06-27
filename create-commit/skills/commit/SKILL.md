@@ -30,21 +30,30 @@ Use `Staged diff` from Context. If it has content, skip to Step 4. Otherwise pro
 
 ### Step 3: Stage Changes
 
-Nothing is staged. Stage all tracked modified files:
+Nothing is staged. Stage all tracked modified files first:
 
 ```bash
 git add -u
 ```
 
-Then verify:
+Then check if there are untracked files in the working tree (look for lines starting with `??` in `Working tree` from Context). If untracked files exist, list them to the user and ask for confirmation using `AskUserQuestion`:
+
+- Question: "以下のファイルはまだ追跡されていません。ステージングに含めますか？\n[list of untracked files]"
+- Options: `["含める（git add -A）", "含めない（追跡済みファイルのみ）"]`
+
+If the user confirms, run:
+
+```bash
+git add -A
+```
+
+Then verify the staged result:
 
 ```bash
 git diff --staged
 ```
 
-If the output is empty (no tracked files were modified), report that there is nothing to commit and stop.
-
-Do not run `git add .` or `git add -A` without explicit user confirmation — untracked files may include secrets or generated artifacts.
+If the output is empty (no changes were staged), report that there is nothing to commit and stop.
 
 ### Step 4: Analyze Staged Diff
 
