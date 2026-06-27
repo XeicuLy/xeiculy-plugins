@@ -93,8 +93,9 @@ If the cohesion of changes is high, do not force a split even if the size exceed
 3. **Independence check**: Can each task be reverted independently? Does the app work correctly after merging?
 4. **Dependency mapping**: Are dependencies between tasks clear? Are tasks that can be implemented in parallel identified?
 5. **Improvement proposals**: If there are problems, specific recommendations on which tasks to split or consolidate
-6. **Educational context check**: Does each task's `learning_context` provide sufficient content for a first-time implementer?
-   - `background` is present and explains why the change is necessary
-   - `hints` are grounded in the actual codebase (not generic advice)
-   - `references` include at least one file:line pointer (e.g., `src/stores/cart.ts:42`)
+6. **Educational context check**: Does each task's `learning_context` give an implementer enough to write the first line of code?
+   - `background` explains WHY this change is necessary (not just what it does)
+   - `hints` answer "how do I write this?" — each hint includes a concrete code pattern or syntax example (1–3 lines), not abstract advice
+   - `references` specify WHAT to look for, not just where (e.g., `src/stores/user.ts:15 — defineStore のアクション定義パターンを確認する`)
+   - `references` include at least one external documentation link when the technology may be unfamiliar
    - `pre_implementation_checklist` contains 3–5 concrete items to verify before coding
