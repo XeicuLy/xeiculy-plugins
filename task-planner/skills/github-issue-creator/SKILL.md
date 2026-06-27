@@ -168,6 +168,30 @@ If `.github/ISSUE_TEMPLATE/task-child.md` exists, follow its section structure. 
 - [ ] 実装が完了している
 - [ ] テストが追加・更新されている
 - [ ] レビュアーが変更内容を理解できる
+
+<!-- learning_context が存在する場合のみ出力する -->
+
+## 背景・なぜこの実装が必要か
+
+[learning_context.background を記載する]
+
+<!-- learning_context が存在する場合のみ出力する -->
+
+## 実装ヒント
+
+- [learning_context.hints[] を箇条書きで記載する]
+
+<!-- learning_context が存在する場合のみ出力する -->
+
+## 参考リンク
+
+- [learning_context.references[] を箇条書きで記載する]
+
+<!-- learning_context が存在する場合のみ出力する -->
+
+## 実装前チェックリスト
+
+- [ ] [learning_context.pre_implementation_checklist[] を - [ ] 形式で記載する]
 ```
 
 ```bash
@@ -295,3 +319,4 @@ After creating and linking all Issues, report in the following format:
 ## Additional Resources
 
 - **`references/label-patterns.md`** — Generic pattern mapping table for layer labels
+- **`examples/task-child.md`** — 子 Issue 本文の記述例（`learning_context` を含む完全サンプル）
