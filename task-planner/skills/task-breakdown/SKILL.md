@@ -66,10 +66,14 @@ This applies to all task decompositions regardless of scope or complexity.
 
    Required instructions for each agent:
    - Keep output to **200 lines or fewer**
-   - Return output in the following 3-section format:
+   - Return output in the following 4-section format:
      1. **Key files** (max 7): path and one-line description
      2. **Main patterns** (max 5): implementation patterns used in the codebase
      3. **Suggestions for next phase** (max 3): design and implementation considerations
+     4. **Learning context candidates** (max 3): educational context for task issues. For each candidate include:
+        - **Why**: why this change is needed (1–2 sentences, grounded in the observed codebase state)
+        - **Hints**: exactly 2 implementation hints derived from patterns found in the codebase
+        - **References**: 1–3 file locations in `file:line` format
 
 2. Summarize discovered patterns and insights and report to the user.
 
@@ -113,6 +117,11 @@ This applies to all task decompositions regardless of scope or complexity.
 **Goal**: Decompose the finalized design into tasks at the appropriate granularity and evaluate them.
 
 1. Generate a task list for the approach selected in Phase 4.
+   - For each task, assemble a `learning_context` object using the Phase 2 agents' **Learning context candidates** output. Map the candidates to the 4 sub-fields defined in `references/issue-schema.md`:
+     - `background`: the **Why** from the most relevant candidate
+     - `hints`: the **Hints** list (expand or trim to fit the task scope)
+     - `references`: the **References** file:line citations
+     - `pre_implementation_checklist`: derive 2–4 items from the hints and references (e.g., "Confirm X exists", "Read Y before editing Z")
 2. Self-evaluate the task list according to the "5 perspectives for evaluating a task list" section in `references/decomposition-guidelines.md`.
 3. Present evaluation results (granularity check, cohesion check, independence check, dependency mapping, improvement proposals) to the user.
 4. Obtain approval for the Issue structure using `AskUserQuestion`.
