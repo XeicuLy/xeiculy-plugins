@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.0.0
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.6.1...v1.0.0)
+
+### ✨ Features
+
+- **task-breakdown:** Issue-schema.md に learning_context フィールドを追加する ([#63](https://github.com/XeicuLy/xeiculy-plugins/pull/63))
+- **task-breakdown:** Phase 2/5 に learning_context 生成ロジックを追加する ([#64](https://github.com/XeicuLy/xeiculy-plugins/pull/64))
+- **task-breakdown:** Decomposition-guidelines.md に第6評価視点を追加する ([#65](https://github.com/XeicuLy/xeiculy-plugins/pull/65))
+- **github-issue-creator:** 子 Issue テンプレートに learning_context 対応の教育的セクションを追加する ([#66](https://github.com/XeicuLy/xeiculy-plugins/pull/66))
+- **task-breakdown:** Sample-task-breakdown.md に learning_context の実装例を追加する ([#67](https://github.com/XeicuLy/xeiculy-plugins/pull/67))
+- **github-issue-creator:** Examples/task-child.md を新規作成する ([#68](https://github.com/XeicuLy/xeiculy-plugins/pull/68))
+
+### 🐛 Bug Fixes
+
+- **commit:** Untracked ファイルのステージング漏れを防ぐ確認フローを追加する ([4c80590](https://github.com/XeicuLy/xeiculy-plugins/commit/4c80590))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+- XeicuLy ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v0.6.1
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.6.0...v0.6.1)
