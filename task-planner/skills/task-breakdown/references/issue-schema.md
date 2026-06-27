@@ -13,15 +13,25 @@ Format definition for information passed to the `task-planner:github-issue-creat
 
 ## Fields for each child_issues element
 
-| Field           | Type     | Required | Description                                              |
-| --------------- | -------- | -------- | -------------------------------------------------------- |
-| `id`            | string   | ✅       | Local task identifier (e.g., `T1`, `T2`)                 |
-| `title`         | string   | ✅       | Task title (e.g., `Piniaストアの型定義追加`)             |
-| `summary`       | string   | ✅       | What this task implements or changes (1–2 sentences)     |
-| `changed_files` | array    | ✅       | List of changed files (see below)                        |
-| `notes`         | string   | —        | Design constraints or caveats                            |
-| `requirements`  | string[] | —        | Implementation requirements (what to do, in bullet form) |
-| `depends_on`    | string[] | —        | Array of child_issue IDs this task depends on            |
+| Field              | Type     | Required | Description                                              |
+| ------------------ | -------- | -------- | -------------------------------------------------------- |
+| `id`               | string   | ✅       | Local task identifier (e.g., `T1`, `T2`)                 |
+| `title`            | string   | ✅       | Task title (e.g., `Piniaストアの型定義追加`)             |
+| `summary`          | string   | ✅       | What this task implements or changes (1–2 sentences)     |
+| `changed_files`    | array    | ✅       | List of changed files (see below)                        |
+| `notes`            | string   | —        | Design constraints or caveats                            |
+| `requirements`     | string[] | —        | Implementation requirements (what to do, in bullet form) |
+| `depends_on`       | string[] | —        | Array of child_issue IDs this task depends on            |
+| `learning_context` | object   | —        | 教育的コンテキスト                                       |
+
+## Fields for each learning_context object
+
+| Field                          | Type     | Required | Description                            |
+| ------------------------------ | -------- | -------- | -------------------------------------- |
+| `background`                   | string   | —        | この実装が必要な背景・理由             |
+| `hints`                        | string[] | —        | 実装時に役立つヒント・注意点           |
+| `references`                   | string[] | —        | 参考にすべきファイルパスや外部リンク   |
+| `pre_implementation_checklist` | string[] | —        | 実装前に確認すべき項目のチェックリスト |
 
 ## Fields for each changed_files element
 
@@ -49,7 +59,21 @@ Format definition for information passed to the `task-planner:github-issue-creat
         { "path": "src/stores/favorites.ts", "op": "CREATE" },
         { "path": "src/stores/favorites.test.ts", "op": "CREATE" }
       ],
-      "depends_on": []
+      "depends_on": [],
+      "learning_context": {
+        "background": "Piniaはデフォルトで型安全なので、ストア定義とアクションを型付きで実装することで、コンポーネント側の型推論が自動的に機能する。",
+        "hints": [
+          "defineStore の第1引数はストアID（文字列）で、アプリ全体でユニークである必要がある",
+          "state は関数で返すオブジェクトとして定義し、直接オブジェクトを渡さないこと",
+          "テストでは setActivePinia(createPinia()) を beforeEach で実行してストアをリセットする"
+        ],
+        "references": ["src/stores/user.ts", "https://pinia.vuejs.org/core-concepts/"],
+        "pre_implementation_checklist": [
+          "既存のストア実装（src/stores/user.ts）の構造を確認した",
+          "Pinia がプロジェクトに導入済みであることを確認した",
+          "追加するストアIDが既存のストアと衝突しないことを確認した"
+        ]
+      }
     },
     {
       "id": "T2",
