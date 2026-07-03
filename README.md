@@ -16,6 +16,22 @@ claude plugin marketplace add XeicuLy/xeiculy-plugins
 
 ## プラグイン一覧
 
+### [product-planner](./product-planner)
+
+ふわっとしたプロダクトのアイデアを、対話を通じて機能要件・非機能要件のドキュメントに落とし込むワークフロープラグイン。`task-planner` よりさらに上流の0→1企画段階を担当する。
+
+**インストール:**
+
+```bash
+/plugin install product-planner@xeiculy-plugins
+```
+
+**機能:**
+
+- 目的・背景・対象ユーザー確認 → 機能要件の洗い出し → 非機能要件の洗い出し → ドキュメント生成の4フェーズワークフロー
+- 各フェーズにハードゲート（ユーザー承認なしに次フェーズへ進まない）
+- 生成したドキュメントは `docs/requirements/<slug>.md` に保存し、`task-planner:task-breakdown` への引き継ぎを想定
+
 ### [task-planner](./task-planner)
 
 要件の明確化からGitHub Issue作成まで、実装準備を体系的に進めるワークフロープラグイン。

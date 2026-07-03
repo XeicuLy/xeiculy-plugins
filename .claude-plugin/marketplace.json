@@ -34,6 +34,18 @@
       "strict": true
     },
     {
+      "name": "product-planner",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/XeicuLy/xeiculy-plugins.git",
+        "path": "product-planner",
+        "ref": "v1.0.0"
+      },
+      "description": "0→1 のプロダクト企画段階で、ふわっとしたアイデアを対話形式で機能要件・非機能要件のドキュメントに落とし込むワークフロープラグイン。",
+      "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/product-planner",
+      "strict": true
+    },
+    {
       "name": "create-commit",
       "source": {
         "source": "git-subdir",
