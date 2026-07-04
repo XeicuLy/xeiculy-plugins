@@ -4,7 +4,10 @@ description: >
   This skill should be used when the user wants to plan a feature implementation from scratch,
   including requirement clarification, codebase exploration, design comparison, task decomposition,
   and automated GitHub Issue creation. It enforces a strict multi-phase workflow where each phase
-  requires explicit user approval before proceeding.
+  requires explicit user approval before proceeding. Assumes the feature or product to build is
+  already decided — if the user has not yet decided what to build, use
+  `product-planner:requirements-definition` first to document functional and non-functional
+  requirements, then return here for task decomposition.
   Trigger phrases: "実装したい", "作りたい", "task-breakdown", "タスク分解", "issue を作りたい",
   "要件を整理したい", "implement this feature", "break this down into tasks",
   "create GitHub issues for this feature", "plan this feature".
