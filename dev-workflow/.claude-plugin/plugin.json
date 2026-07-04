@@ -1,6 +1,6 @@
 {
   "name": "dev-workflow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "GitHub Issue implementation and PR review comment resolution workflows with TDD enforcement.",
   "author": {
     "name": "XeicuLy",

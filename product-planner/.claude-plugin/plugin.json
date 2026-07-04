@@ -1,6 +1,6 @@
 {
   "name": "product-planner",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "0→1 のプロダクト企画段階で、ふわっとしたアイデアを対話形式で機能要件・非機能要件のドキュメントに落とし込むワークフロープラグイン。",
   "author": {
     "name": "XeicuLy",
@@ -9,5 +9,11 @@
   "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/product-planner",
   "repository": "https://github.com/XeicuLy/xeiculy-plugins",
   "license": "MIT",
-  "keywords": ["requirements", "product-planning", "prd", "discovery", "documentation"]
+  "keywords": [
+    "requirements",
+    "product-planning",
+    "prd",
+    "discovery",
+    "documentation"
+  ]
 }

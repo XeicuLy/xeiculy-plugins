@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.1.0
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v1.0.0...v1.1.0)
+
+### ✨ Features
+
+- Product-planner プラグインを新規追加する ([#69](https://github.com/XeicuLy/xeiculy-plugins/pull/69))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v1.0.0
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v0.6.1...v1.0.0)
