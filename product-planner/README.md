@@ -10,7 +10,7 @@
 
 `task-planner:task-breakdown` は「実装したい機能」が既に決まっている前提の分解ツールだが、`product-planner:requirements-definition` はさらに上流の「まだ何を作るか固まっていない」0→1のプロダクト企画段階を担当する。
 
-```
+```text
 product-planner:requirements-definition  →  task-planner:task-breakdown
 （何を作るか固める）                        （どう作るかタスク分解する）
 ```
@@ -27,7 +27,7 @@ cc --plugin-dir /path/to/product-planner
 
 以下のような発言でスキルが自動的にトリガーされる:
 
-```
+```text
 「プロダクトを企画したい」
 「こんなものを作ってみたい」
 「要件定義書を作りたい」
