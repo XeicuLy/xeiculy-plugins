@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.1.1
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v1.1.0...v1.1.1)
+
+### 🐛 Bug Fixes
+
+- **dev-workflow:** Implement-issue の Post-Phase から superpowers 依存を除去 ([#72](https://github.com/XeicuLy/xeiculy-plugins/pull/72))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v1.1.0
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v1.0.0...v1.1.0)
