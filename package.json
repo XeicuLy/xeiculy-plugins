@@ -8,6 +8,7 @@
     "format": "prettier --write .",
     "tsc": "tsc --noEmit",
     "lint": "pnpm format && pnpm tsc",
+    "test": "vitest run",
     "release": "jiti scripts/release.ts",
     "prepare": "husky"
   },
@@ -24,6 +25,7 @@
     "prettier": "3.8.4",
     "semver": "7.8.5",
     "tinyexec": "1.2.4",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
   }
 }
