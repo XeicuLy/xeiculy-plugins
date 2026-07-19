@@ -5,11 +5,11 @@ import { tmpdir } from 'os';
 import { consola } from 'consola';
 import { x } from 'tinyexec';
 import semver from 'semver';
+import { getCommitSubjects, inferBumpType, type BumpType } from './lib/git-changes.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 
-type BumpType = 'patch' | 'minor' | 'major';
 const BUMP_TYPES: BumpType[] = ['patch', 'minor', 'major'];
 
 function parseArgs(): { dryRun: boolean; isCI: boolean; bumpType: BumpType | undefined } {
@@ -58,11 +58,8 @@ async function inferBumpTypeFromCommits(currentVersion: string): Promise<BumpTyp
     consola.warn(`Tag v${currentVersion} not found, analyzing recent commits`);
   }
   const range = tagExists ? `v${currentVersion}..HEAD` : 'HEAD~20..HEAD';
-  const result = await x('git', ['log', range, '--format=%s']);
-  const subjects = result.stdout.trim().split('\n').filter(Boolean);
-  if (subjects.some((s) => /^[a-z]+(\(.+\))?!:/.test(s) || s.includes('BREAKING CHANGE'))) return 'major';
-  if (subjects.some((s) => /^feat(\(.+\))?:/.test(s))) return 'minor';
-  return 'patch';
+  const subjects = await getCommitSubjects(range, '.');
+  return inferBumpType(subjects);
 }
 
 function updateJsonFile(
@@ -163,8 +160,11 @@ async function run(): Promise<void> {
   );
   if (!dryRun) consola.success('Changelog generated');
 
-  // Sync versions across plugin.json files
-  await runCmd('jiti', ['scripts/sync-versions.ts', newVersion], dryRun, `jiti scripts/sync-versions.ts ${newVersion}`);
+  // Sync versions across plugin.json files (only for plugins changed since the previous tag).
+  // Always runs, even in --dry-run: sync-versions.ts detects changes for real and only skips writes,
+  // which is how the per-plugin selective bump logic gets manually verified.
+  const syncArgs = ['scripts/sync-versions.ts', newVersion, currentVersion, ...(dryRun ? ['--dry-run'] : [])];
+  await x('jiti', syncArgs, { nodeOptions: { cwd: root }, throwOnError: true });
   if (!dryRun) consola.success('Versions synced');
 
   // Commit, tag and push
