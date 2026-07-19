@@ -23,19 +23,24 @@ if (!semverLike.test(newVersion) || !semverLike.test(previousVersion)) {
   process.exit(1);
 }
 
-function updateJson(filePath: string, updater: (obj: Record<string, unknown>) => void, label: string): void {
+type PendingWrite = { filePath: string; obj: Record<string, unknown>; label: string; summary?: string };
+
+function loadJson(filePath: string): Record<string, unknown> {
+  const raw = readFileSync(filePath, 'utf-8');
+  return JSON.parse(raw) as Record<string, unknown>;
+}
+
+function commitWrite({ filePath, obj, label, summary }: PendingWrite): void {
   if (dryRun) {
     console.log(`[dry-run] Would update ${label}`);
-    return;
+  } else {
+    writeFileSync(filePath, JSON.stringify(obj, null, 2) + '\n', 'utf-8');
   }
-  const raw = readFileSync(filePath, 'utf-8');
-  const obj = JSON.parse(raw) as Record<string, unknown>;
-  updater(obj);
-  writeFileSync(filePath, JSON.stringify(obj, null, 2) + '\n', 'utf-8');
+  if (summary) console.log(summary);
 }
 
 async function previousTagExists(tag: string): Promise<boolean> {
-  const result = await x('git', ['tag', '-l', tag]);
+  const result = await x('git', ['tag', '-l', tag], { throwOnError: true });
   return result.stdout.trim().length > 0;
 }
 
@@ -52,6 +57,7 @@ async function run(): Promise<void> {
   }
 
   const changedDirs = new Set<string>();
+  const pendingWrites: PendingWrite[] = [];
 
   for (const plugin of marketplace.plugins) {
     const pluginDir = plugin.source.path;
@@ -64,7 +70,8 @@ async function run(): Promise<void> {
     }
 
     const pluginJsonPath = resolve(root, `${pluginDir}/.claude-plugin/plugin.json`);
-    const currentPluginVersion = (JSON.parse(readFileSync(pluginJsonPath, 'utf-8')) as { version: string }).version;
+    const pluginJson = loadJson(pluginJsonPath);
+    const currentPluginVersion = (pluginJson as { version: string }).version;
 
     const subjects = await getCommitSubjects(range, pluginDir);
     const bumpType = inferBumpType(subjects);
@@ -76,35 +83,31 @@ async function run(): Promise<void> {
       process.exit(1);
     }
 
-    updateJson(
-      pluginJsonPath,
-      (obj) => {
-        obj.version = newPluginVersion;
-      },
-      `${plugin.name} plugin.json`,
-    );
+    pluginJson.version = newPluginVersion;
+    pendingWrites.push({
+      filePath: pluginJsonPath,
+      obj: pluginJson,
+      label: `${plugin.name} plugin.json`,
+      summary: `${dryRun ? '[dry-run] Would update' : 'Updated'} ${plugin.name}: ${currentPluginVersion} -> ${newPluginVersion} (${bumpType})`,
+    });
     changedDirs.add(pluginDir);
-
-    console.log(
-      `${dryRun ? '[dry-run] Would update' : 'Updated'} ${plugin.name}: ${currentPluginVersion} -> ${newPluginVersion} (${bumpType})`,
-    );
   }
 
-  updateJson(
-    marketplacePath,
-    (obj) => {
-      const metadata = obj.metadata as Record<string, unknown>;
-      metadata.version = newVersion;
-      const plugins = obj.plugins as Array<Record<string, unknown>>;
-      for (const plugin of plugins) {
-        const source = plugin.source as Record<string, unknown>;
-        if (changedDirs.has(source.path as string)) {
-          source.ref = `v${newVersion}`;
-        }
-      }
-    },
-    'marketplace.json',
-  );
+  const marketplaceJson = loadJson(marketplacePath);
+  const metadata = marketplaceJson.metadata as Record<string, unknown>;
+  metadata.version = newVersion;
+  const plugins = marketplaceJson.plugins as Array<Record<string, unknown>>;
+  for (const plugin of plugins) {
+    const source = plugin.source as Record<string, unknown>;
+    if (changedDirs.has(source.path as string)) {
+      source.ref = `v${newVersion}`;
+    }
+  }
+  pendingWrites.push({ filePath: marketplacePath, obj: marketplaceJson, label: 'marketplace.json' });
+
+  for (const write of pendingWrites) {
+    commitWrite(write);
+  }
 
   console.log(`Synced version ${newVersion}: ${changedDirs.size}/${marketplace.plugins.length} plugin(s) updated`);
 }
