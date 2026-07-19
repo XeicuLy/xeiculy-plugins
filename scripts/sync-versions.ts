@@ -1,9 +1,10 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { x } from 'tinyexec';
 import semver from 'semver';
 import { getCommitSubjects, hasChangedSince, inferBumpType } from './lib/git-changes.ts';
+import { writeJsonFilesAtomically } from './lib/atomic-write.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -30,13 +31,20 @@ function loadJson(filePath: string): Record<string, unknown> {
   return JSON.parse(raw) as Record<string, unknown>;
 }
 
-function commitWrite({ filePath, obj, label, summary }: PendingWrite): void {
+function commitWrites(writes: PendingWrite[]): void {
   if (dryRun) {
-    console.log(`[dry-run] Would update ${label}`);
-  } else {
-    writeFileSync(filePath, JSON.stringify(obj, null, 2) + '\n', 'utf-8');
+    for (const { label, summary } of writes) {
+      console.log(`[dry-run] Would update ${label}`);
+      if (summary) console.log(summary);
+    }
+    return;
   }
-  if (summary) console.log(summary);
+
+  writeJsonFilesAtomically(writes.map(({ filePath, obj }) => ({ filePath, obj })));
+
+  for (const { summary } of writes) {
+    if (summary) console.log(summary);
+  }
 }
 
 async function previousTagExists(tag: string): Promise<boolean> {
@@ -105,9 +113,7 @@ async function run(): Promise<void> {
   }
   pendingWrites.push({ filePath: marketplacePath, obj: marketplaceJson, label: 'marketplace.json' });
 
-  for (const write of pendingWrites) {
-    commitWrite(write);
-  }
+  commitWrites(pendingWrites);
 
   console.log(`Synced version ${newVersion}: ${changedDirs.size}/${marketplace.plugins.length} plugin(s) updated`);
 }
