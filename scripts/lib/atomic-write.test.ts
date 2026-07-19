@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -47,5 +47,23 @@ describe('writeJsonFilesAtomically', () => {
     expect(readFileSync(fileA, 'utf-8')).toBe('{"version":"1.0.0"}\n');
     expect(existsSync(`${fileA}.tmp`)).toBe(false);
     expect(existsSync(fileB)).toBe(false);
+  });
+
+  it('rename段階で一部が失敗した場合、既にrename済みのファイルも元の内容へロールバックされる', () => {
+    const fileA = join(dir, 'a.json');
+    const fileBAsDir = join(dir, 'b.json');
+    writeFileSync(fileA, '{"version":"1.0.0"}\n', 'utf-8');
+    mkdirSync(fileBAsDir);
+
+    expect(() =>
+      writeJsonFilesAtomically([
+        { filePath: fileA, obj: { version: '1.1.0' } },
+        { filePath: fileBAsDir, obj: { version: '1.1.0' } },
+      ]),
+    ).toThrow();
+
+    expect(readFileSync(fileA, 'utf-8')).toBe('{"version":"1.0.0"}\n');
+    expect(existsSync(`${fileA}.tmp`)).toBe(false);
+    expect(existsSync(`${fileBAsDir}.tmp`)).toBe(false);
   });
 });

@@ -7,21 +7,45 @@ import { getCommitSubjects, hasChangedSince, inferBumpType } from './lib/git-cha
 import { writeJsonFilesAtomically } from './lib/atomic-write.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = resolve(__dirname, '..');
 
-const args = process.argv.slice(2);
-const dryRun = args.includes('--dry-run');
-const [newVersion, previousVersion] = args.filter((a) => a !== '--dry-run');
-const semverLike = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z-.]+)?(?:\+[0-9A-Za-z-.]+)?$/;
+export type ParsedArgs = { newVersion: string; previousVersion: string; dryRun: boolean; root: string };
 
-if (!newVersion || !previousVersion) {
-  console.error('Usage: node scripts/sync-versions.ts <newVersion> <previousVersion> [--dry-run]');
-  process.exit(1);
-}
+export function parseArgs(argv: string[], defaultRoot: string): ParsedArgs {
+  const positional: string[] = [];
+  let dryRun = false;
+  let root = defaultRoot;
 
-if (!semverLike.test(newVersion) || !semverLike.test(previousVersion)) {
-  console.error(`Invalid version: ${newVersion} / ${previousVersion}`);
-  process.exit(1);
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--dry-run') {
+      dryRun = true;
+      continue;
+    }
+    if (arg === '--root') {
+      const value = argv[i + 1];
+      if (!value) {
+        throw new Error('Missing value for --root');
+      }
+      root = resolve(value);
+      i++;
+      continue;
+    }
+    if (arg?.startsWith('--')) {
+      throw new Error(`Unknown flag: ${arg}`);
+    }
+    positional.push(arg);
+  }
+
+  if (positional.length !== 2) {
+    throw new Error('Usage: node scripts/sync-versions.ts <newVersion> <previousVersion> [--dry-run] [--root <path>]');
+  }
+
+  const [newVersion, previousVersion] = positional;
+  if (!semver.valid(newVersion) || !semver.valid(previousVersion)) {
+    throw new Error(`Invalid version: ${newVersion} / ${previousVersion}`);
+  }
+
+  return { newVersion, previousVersion, dryRun, root };
 }
 
 type PendingWrite = { filePath: string; obj: Record<string, unknown>; label: string; summary?: string };
@@ -31,7 +55,7 @@ function loadJson(filePath: string): Record<string, unknown> {
   return JSON.parse(raw) as Record<string, unknown>;
 }
 
-function commitWrites(writes: PendingWrite[]): void {
+function commitWrites(writes: PendingWrite[], dryRun: boolean): void {
   if (dryRun) {
     for (const { label, summary } of writes) {
       console.log(`[dry-run] Would update ${label}`);
@@ -52,7 +76,7 @@ async function previousTagExists(tag: string): Promise<boolean> {
   return result.stdout.trim().length > 0;
 }
 
-async function run(): Promise<void> {
+async function run({ newVersion, previousVersion, dryRun, root }: ParsedArgs): Promise<void> {
   const marketplacePath = resolve(root, '.claude-plugin/marketplace.json');
   const marketplace = JSON.parse(readFileSync(marketplacePath, 'utf-8')) as {
     plugins: Array<{ name: string; source: { path: string } }>;
@@ -113,12 +137,23 @@ async function run(): Promise<void> {
   }
   pendingWrites.push({ filePath: marketplacePath, obj: marketplaceJson, label: 'marketplace.json' });
 
-  commitWrites(pendingWrites);
+  commitWrites(pendingWrites, dryRun);
 
   console.log(`Synced version ${newVersion}: ${changedDirs.size}/${marketplace.plugins.length} plugin(s) updated`);
 }
 
-run().catch((err: unknown) => {
-  console.error(err);
-  process.exit(1);
-});
+const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMainModule) {
+  let parsedArgs: ParsedArgs;
+  try {
+    parsedArgs = parseArgs(process.argv.slice(2), resolve(__dirname, '..'));
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : err);
+    process.exit(1);
+  }
+
+  run(parsedArgs).catch((err: unknown) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
