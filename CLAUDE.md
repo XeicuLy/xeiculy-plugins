@@ -58,6 +58,9 @@ pnpm tsc        # 型チェックのみ
 
 `marketplace.json` がバージョンの単一ソースです。`scripts/sync-versions.ts` が `marketplace.json` と全 `plugin.json` へバージョンを同期します。`changelogen` は `CHANGELOG.md` の生成のみに使用します。手動でバージョンを書き換えないでください。
 
+- 各プラグインの `plugin.json` の `version` と `marketplace.json` の対応する `source.ref` は、前回リリースタグ以降にそのプラグインディレクトリ配下で変更があった場合のみ更新されます。変更のないプラグインはバージョンが据え置かれます。
+- `scripts/`, `CLAUDE.md`, `README.md`, `.github/` など、どのプラグインディレクトリにも属さない共通ファイルのみの変更では、どのプラグインの `version` / `source.ref` も更新されません（`marketplace.json` の `metadata.version` はリリースごとに更新されます）。
+
 ### ローカルからリリース
 
 ```bash
@@ -67,7 +70,7 @@ pnpm release
 対話式プロンプトでバージョン（patch / minor / major）を選択すると、以下が自動実行されます：
 
 1. `CHANGELOG.md` を生成・更新（`changelogen`）
-2. `marketplace.json` と全 `plugin.json` のバージョンを更新（`sync-versions.ts`）
+2. `marketplace.json` の `metadata.version` と、変更のあったプラグインの `plugin.json` / `source.ref` を更新（`sync-versions.ts`）
 3. git タグ（`v<version>`）を作成してプッシュ
 4. GitHub Release を作成
 
