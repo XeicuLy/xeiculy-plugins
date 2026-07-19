@@ -1,5 +1,32 @@
 # Changelog
 
+## v2.0.0
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v1.1.1...v2.0.0)
+
+### ✨ Features
+
+- **release:** プラグイン単位の変更検知とbump判定ロジックを追加する ([#79](https://github.com/XeicuLy/xeiculy-plugins/pull/79))
+- **release:** プラグイン単位の選択的バージョン更新を実装する ([#80](https://github.com/XeicuLy/xeiculy-plugins/pull/80))
+
+### ♻️ Refactors
+
+- **github-issue-creator:** Sub Issue/blocked-by登録をgh apiからネイティブフラグへ移行する ([#82](https://github.com/XeicuLy/xeiculy-plugins/pull/82))
+
+### 📖 Documentation
+
+- ライセンス(MIT)を追加する ([e5b8781](https://github.com/XeicuLy/xeiculy-plugins/commit/e5b8781))
+- **claude-md:** リリース手順にプラグイン単位の選択的バージョン更新を追記する ([#81](https://github.com/XeicuLy/xeiculy-plugins/pull/81))
+
+### 🏡 Chore
+
+- **commitlint:** Subject-case ルールを無効化する ([afb738a](https://github.com/XeicuLy/xeiculy-plugins/commit/afb738a))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+- XeicuLy ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v1.1.1
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v1.1.0...v1.1.1)
