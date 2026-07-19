@@ -14,7 +14,7 @@ Create GitHub Issues from task decomposition results. Create a parent Issue and 
 
 ## Prerequisites
 
-- `gh` CLI must be available
+- `gh` CLI version 2.94.0 or later must be available (`--parent` / `--blocked-by` flags on `gh issue create` require this version)
 - Current directory must be a Git repository
 - Authentication to GitHub must be complete
 
@@ -194,6 +194,8 @@ If `.github/ISSUE_TEMPLATE/task-child.md` exists, follow its section structure. 
 - [ ] [learning_context.pre_implementation_checklist[] を - [ ] 形式で記載する]
 ```
 
+`--parent` / `--blocked-by` フラグを使用する前に `gh --version` で 2.94.0 以上であることを確認する。
+
 ```bash
 gh issue create \
   --title "{タスクタイトル}" \
@@ -245,7 +247,7 @@ After creating and linking all Issues, report in the following format:
 1. #[番号] - [タイトル]
    [URL]
    🏷️ ラベル: [ラベル1], [ラベル2]
-   依存関係: [なし / #番号]
+   依存関係: [なし / #番号1, #番号2]
 
 ---
 📊 Issue構造
