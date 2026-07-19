@@ -198,64 +198,18 @@ If `.github/ISSUE_TEMPLATE/task-child.md` exists, follow its section structure. 
 gh issue create \
   --title "{タスクタイトル}" \
   --body "[Body内容]" \
-  --label "[種別ラベル],[layer: XXX]"
+  --label "[種別ラベル],[layer: XXX]" \
+  --parent [親Issue番号] \
+  --blocked-by [depends_on で参照されている子Issue番号（カンマ区切り、複数可）]
 ```
+
+`depends_on` が空または未指定の場合は `--blocked-by` を省略する。
 
 Record the created child Issue numbers with their local ID mapping.
 
 ---
 
-## Step 3: Link Child Issues as Sub Issues
-
-```bash
-# Get repository information
-gh repo view --json owner,name --jq '{owner: .owner.login, name: .name}'
-
-# Get numeric ID via REST API and register as Sub Issue
-# ⚠️ gh issue view --json id returns a GraphQL node ID (string) — do not use it
-child_issue_number=[子Issue番号]
-child_issue_id=$(gh api /repos/{OWNER}/{REPO}/issues/${child_issue_number} --jq '.id')
-
-gh api \
-  --method POST \
-  -H "Accept: application/vnd.github+json" \
-  -H "X-GitHub-Api-Version: 2026-03-10" \
-  /repos/{OWNER}/{REPO}/issues/[親Issue番号]/sub_issues \
-  -F "sub_issue_id=${child_issue_id}"
-```
-
-Execute this command in a loop for all child Issues.
-
----
-
-## Step 3.5: Set "blocked by" dependencies between child Issues
-
-Set "blocked by" relationships between child Issues based on `depends_on` in the task list. Skip child Issues with empty or missing `depends_on`.
-
-```bash
-# node_id is required for GraphQL mutation (obtained from the REST API .node_id field)
-blocked_issue_number=[depends_on を持つ子Issueの番号]
-blocking_issue_number=[depends_on で参照されている子Issueの番号]
-
-blocked_node_id=$(gh api /repos/{OWNER}/{REPO}/issues/${blocked_issue_number} --jq '.node_id')
-blocking_node_id=$(gh api /repos/{OWNER}/{REPO}/issues/${blocking_issue_number} --jq '.node_id')
-
-gh api graphql -f query="
-mutation {
-  addBlockedBy(input: {
-    issueId: \"${blocked_node_id}\",
-    blockingIssueId: \"${blocking_node_id}\"
-  }) {
-    issue { number issueDependenciesSummary { blockedBy blocking } }
-  }
-}"
-```
-
-After setting, verify that `issueDependenciesSummary.blockedBy` for each child Issue matches the expected values.
-
----
-
-## Step 4: Update the "Child Issue List" section of the parent Issue
+## Step 3: Update the "Child Issue List" section of the parent Issue
 
 ```bash
 gh issue edit [親Issue番号] \
