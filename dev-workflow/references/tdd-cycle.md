@@ -19,4 +19,6 @@ If the test does not fail, it is not correctly capturing the behavior — rewrit
 
 **REFACTOR**: Remove duplication and improve naming → run the test suite and linter to confirm no regressions.
 
+**REFACTOR**: Check whether the test written in GREEN depends on the implementation-detail side of the "Test What Behavior, Not Implementation" table; if so, rewrite it to test the behavior side, and revise the test name to describe what input produces what behavior instead of implementation details, without losing normal/error/boundary-value coverage → re-run the test suite and confirm no regressions.
+
 When there are multiple acceptance criteria, fully complete one before moving to the next RED.
