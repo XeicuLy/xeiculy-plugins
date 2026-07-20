@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.0.1
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v2.0.0...v2.0.1)
+
+### 📖 Documentation
+
+- **dev-workflow:** REFACTOR節に振る舞いベーステスト見直しステップを追加する ([#85](https://github.com/XeicuLy/xeiculy-plugins/pull/85))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v2.0.0
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v1.1.1...v2.0.0)
