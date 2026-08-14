@@ -6,6 +6,7 @@ description: >
   Trigger phrases: "issue 作成", "Issue を作成", "create issue", "issue 作って",
   "子Issue を作成", "GitHub Issue を作りたい", "タスクをIssueにしたい".
 version: 0.1.0
+allowed-tools: Bash(gh label list *) Bash(gh label create *) Bash(gh --version) Bash(gh issue create *) Bash(gh issue edit *)
 ---
 
 # GitHub Issue Creator Skill
