@@ -4,6 +4,7 @@ description: >
   Use when implementing a GitHub Issue (issue番号 + 実装/対応/コード/修正, or #XX 対応して).
   Fetches Issue context from GitHub, then hands off to feature-dev 7-Phase Workflow with TDD
   enforcement in implementation. Not for PR review comments, debugging, or git ops.
+allowed-tools: Bash(gh repo view *) Bash(gh issue view *) Bash(gh api graphql *) Skill
 ---
 
 # Implement Issue Skill
