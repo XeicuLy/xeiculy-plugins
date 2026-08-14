@@ -11,7 +11,10 @@ description: >
   Trigger phrases: "実装したい", "作りたい", "task-breakdown", "タスク分解", "issue を作りたい",
   "要件を整理したい", "implement this feature", "break this down into tasks",
   "create GitHub issues for this feature", "plan this feature".
+  Not for implementing an Issue that already exists, responding to PR review comments, or
+  creating a single Issue without decomposition.
 version: 0.1.0
+allowed-tools: TaskCreate AskUserQuestion Agent Skill
 ---
 
 # Task Breakdown Skill
