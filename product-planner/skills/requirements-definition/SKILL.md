@@ -11,6 +11,7 @@ description: >
   "新規サービスを考えている", "機能要件と非機能要件をまとめたい", "plan a new product from scratch",
   "define requirements for a new idea".
 version: 0.1.0
+allowed-tools: TaskCreate AskUserQuestion Write Bash(mkdir -p docs/requirements)
 ---
 
 # Requirements Definition Skill
