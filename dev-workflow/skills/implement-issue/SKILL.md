@@ -89,3 +89,11 @@ Once all acceptance criteria are GREEN:
 
 1. 全受入基準がGREENであることを確認するため、テストスイートを再実行する
 2. 実装完了をユーザーに報告し、コミット・PR 作成を促す
+
+### Handling Hidden Requirements
+
+If work outside the current acceptance criteria surfaces during implementation:
+
+- If it fits within the current Issue's scope, add it as an additional acceptance criterion and implement it.
+- If it requires separate implementation, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue under the same parent. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context.
+- Reuse the parent Issue's child-list update pattern (`gh issue edit [親Issue番号] --body "..."`) to register the new Issue.
