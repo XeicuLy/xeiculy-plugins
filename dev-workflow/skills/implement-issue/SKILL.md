@@ -94,6 +94,7 @@ Once all acceptance criteria are GREEN:
 
 If work outside the current acceptance criteria surfaces during implementation:
 
-- If it fits within the current Issue's scope, add it as an additional acceptance criterion and implement it.
-- If it requires separate implementation, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue under the same parent. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context.
-- Reuse the parent Issue's child-list update pattern (`gh issue edit [親Issue番号] --body "..."`) to register the new Issue.
+- **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion and implement it.
+- **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context.
+  - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent, then update the parent Issue's child list (`gh issue edit [親Issue番号] --body "..."`).
+  - If the current Issue has no parent, register the new Issue as a child of the current Issue, then update the current Issue's child list (`gh issue edit [現Issue番号] --body "..."`).
