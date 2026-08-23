@@ -117,6 +117,6 @@ Before running the completion check below, if work outside the current acceptanc
 
 ### Completion
 
-1. 隠れた要件の対応で受入基準を追加した場合はそれを含め、全受入基準がGREENであることを確認するため、テストスイートを再実行する
-2. 新規子Issueを作成した場合は、GitHub上の登録結果を完了報告前に確認する: 作成されたIssue番号、子Issue本文の `learning_context` 4項目（`background` / `hints` / `references` / `pre_implementation_checklist`）、親Issueまたは現Issue本文に新規Issueの番号・タイトル・URLが反映されていること。いずれかの確認に失敗した場合は完了を報告せず、原因を解消してから再確認する。
-3. 実装完了をユーザーに報告し、コミット・PR 作成を促す
+1. Re-run the test suite to confirm all acceptance criteria are GREEN, including any added while handling hidden requirements.
+2. If a new child Issue was created, verify the GitHub registration before reporting completion: the created Issue number, all 4 `learning_context` fields (`background` / `hints` / `references` / `pre_implementation_checklist`) in the child Issue body, and the new Issue's number/title/URL reflected in the parent or current Issue body. If any check fails, do not report completion — resolve the cause and re-verify.
+3. Report completion to the user and prompt them to commit and create a PR.
