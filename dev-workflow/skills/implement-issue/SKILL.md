@@ -87,14 +87,16 @@ See `../../references/tdd-cycle.md` for the full rules.
 
 Once all acceptance criteria are GREEN:
 
-1. 全受入基準がGREENであることを確認するため、テストスイートを再実行する
-2. 実装完了をユーザーに報告し、コミット・PR 作成を促す
-
 ### Handling Hidden Requirements
 
-If work outside the current acceptance criteria surfaces during implementation:
+Before running the completion check below, if work outside the current acceptance criteria surfaces during implementation:
 
-- **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion and implement it.
+- **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion, implement it, and persist it to the current Issue: fetch the existing body with `gh issue view [現Issue番号] --json body --jq .body`, append the new criterion to the checklist, then update with `gh issue edit [現Issue番号] --body "<統合後の本文>"` so existing content is preserved rather than overwritten.
 - **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context.
-  - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent, then update the parent Issue's child list (`gh issue edit [親Issue番号] --body "..."`).
-  - If the current Issue has no parent, register the new Issue as a child of the current Issue, then update the current Issue's child list (`gh issue edit [現Issue番号] --body "..."`).
+  - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent. Fetch the parent Issue's existing body with `gh issue view [親Issue番号] --json body --jq .body`, append the new Issue to its child list, then update with `gh issue edit [親Issue番号] --body "<統合後の本文>"` so existing content is preserved rather than overwritten.
+  - If the current Issue has no parent, register the new Issue as a child of the current Issue. Fetch the current Issue's existing body with `gh issue view [現Issue番号] --json body --jq .body`, append the new Issue to its child list, then update with `gh issue edit [現Issue番号] --body "<統合後の本文>"` so existing content is preserved rather than overwritten.
+
+### Completion
+
+1. 隠れた要件の対応で受入基準を追加した場合はそれを含め、全受入基準がGREENであることを確認するため、テストスイートを再実行する
+2. 実装完了をユーザーに報告し、コミット・PR 作成を促す
