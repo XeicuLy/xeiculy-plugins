@@ -50,9 +50,10 @@ gh api graphql -f query="
 
 If a parent issue exists:
 
-1. Fetch the full parent issue content:
+1. Fetch the full parent issue content. Store the parent's repository as `PARENT_REPO` — it may differ from the current repository and is reused in Post-Phase:
    ```bash
-   gh issue view <親Issue番号> --repo "<parent.repository.nameWithOwner>"
+   PARENT_REPO="<parent.repository.nameWithOwner>"
+   gh issue view <親Issue番号> --repo "$PARENT_REPO"
    ```
 2. Understand the parent's overall goal: what the parent issue is trying to achieve end-to-end.
 3. Identify where the current issue fits within that goal — which phase, step, or concern it addresses.
@@ -91,12 +92,31 @@ Once all acceptance criteria are GREEN:
 
 Before running the completion check below, if work outside the current acceptance criteria surfaces during implementation:
 
-- **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion, implement it, and persist it to the current Issue: fetch the existing body with `gh issue view [現Issue番号] --json body --jq .body`, append the new criterion to the checklist, then update with `gh issue edit [現Issue番号] --body "<統合後の本文>"` so existing content is preserved rather than overwritten.
-- **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context.
-  - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent. Fetch the parent Issue's existing body with `gh issue view [親Issue番号] --json body --jq .body`, append the new Issue to its child list, then update with `gh issue edit [親Issue番号] --body "<統合後の本文>"` so existing content is preserved rather than overwritten.
-  - If the current Issue has no parent, register the new Issue as a child of the current Issue. Fetch the current Issue's existing body with `gh issue view [現Issue番号] --json body --jq .body`, append the new Issue to its child list, then update with `gh issue edit [現Issue番号] --body "<統合後の本文>"` so existing content is preserved rather than overwritten.
+- **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion, implement it, and persist it to the current Issue. Fetch the existing body into a variable and pass the merged result back through `--body`, never interpolating body text directly into the shell command (backticks / `$()` / quotes in the body would otherwise be evaluated by the shell):
+  ```bash
+  ISSUE_BODY=$(gh issue view [現Issue番号] --json body --jq .body)
+  UPDATED_BODY="${ISSUE_BODY}
+  - [ ] <追加した受入基準>"
+  gh issue edit [現Issue番号] --body "$UPDATED_BODY"
+  ```
+- **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context. Apply the same variable-based body update (never interpolate body text directly) to whichever Issue receives the child list update:
+  - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent, operating on the parent's own repository via `$PARENT_REPO` captured in Pre-Phase:
+    ```bash
+    PARENT_BODY=$(gh issue view [親Issue番号] --repo "$PARENT_REPO" --json body --jq .body)
+    UPDATED_PARENT_BODY="${PARENT_BODY}
+    - #<新規Issue番号> <新規Issueタイトル>"
+    gh issue edit [親Issue番号] --repo "$PARENT_REPO" --body "$UPDATED_PARENT_BODY"
+    ```
+  - If the current Issue has no parent, register the new Issue as a child of the current Issue:
+    ```bash
+    CURRENT_BODY=$(gh issue view [現Issue番号] --json body --jq .body)
+    UPDATED_CURRENT_BODY="${CURRENT_BODY}
+    - #<新規Issue番号> <新規Issueタイトル>"
+    gh issue edit [現Issue番号] --body "$UPDATED_CURRENT_BODY"
+    ```
 
 ### Completion
 
 1. 隠れた要件の対応で受入基準を追加した場合はそれを含め、全受入基準がGREENであることを確認するため、テストスイートを再実行する
-2. 実装完了をユーザーに報告し、コミット・PR 作成を促す
+2. 新規子Issueを作成した場合は、GitHub上の登録結果を完了報告前に確認する: 作成されたIssue番号、子Issue本文の `learning_context` 4項目（`background` / `hints` / `references` / `pre_implementation_checklist`）、親Issueまたは現Issue本文に新規Issueの番号・タイトル・URLが反映されていること。いずれかの確認に失敗した場合は完了を報告せず、原因を解消してから再確認する。
+3. 実装完了をユーザーに報告し、コミット・PR 作成を促す
