@@ -92,31 +92,34 @@ Once all acceptance criteria are GREEN:
 
 Before running the completion check below, if work outside the current acceptance criteria surfaces during implementation:
 
-- **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion, implement it, and persist it to the current Issue. Fetch the existing body into a variable and pass the merged result back through `--body`, never interpolating body text directly into the shell command (backticks / `$()` / quotes in the body would otherwise be evaluated by the shell):
+- **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion, implement it, and persist it to the current Issue. Capture the added criterion text into a single-quoted variable (backticks / `$()` / double quotes inside single quotes are never evaluated by the shell; escape any literal single quote in the text as `'\''`), then merge it with the existing body and pass the result back through `--body`:
   ```bash
   ISSUE_BODY=$(gh issue view [現Issue番号] --json body --jq .body)
+  NEW_CRITERION='<追加した受入基準>'
   UPDATED_BODY="${ISSUE_BODY}
-  - [ ] <追加した受入基準>"
+  - [ ] ${NEW_CRITERION}"
   gh issue edit [現Issue番号] --body "$UPDATED_BODY"
   ```
-- **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context. Apply the same variable-based body update (never interpolate body text directly) to whichever Issue receives the child list update:
+- **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context. Apply the same single-quoted variable capture (never interpolate raw title/body text directly into the shell command) to whichever Issue receives the child list update:
   - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent, operating on the parent's own repository via `$PARENT_REPO` captured in Pre-Phase:
     ```bash
     PARENT_BODY=$(gh issue view [親Issue番号] --repo "$PARENT_REPO" --json body --jq .body)
+    NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル>'
     UPDATED_PARENT_BODY="${PARENT_BODY}
-    - #<新規Issue番号> <新規Issueタイトル>"
+    ${NEW_ISSUE_LINE}"
     gh issue edit [親Issue番号] --repo "$PARENT_REPO" --body "$UPDATED_PARENT_BODY"
     ```
   - If the current Issue has no parent, register the new Issue as a child of the current Issue:
     ```bash
     CURRENT_BODY=$(gh issue view [現Issue番号] --json body --jq .body)
+    NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル>'
     UPDATED_CURRENT_BODY="${CURRENT_BODY}
-    - #<新規Issue番号> <新規Issueタイトル>"
+    ${NEW_ISSUE_LINE}"
     gh issue edit [現Issue番号] --body "$UPDATED_CURRENT_BODY"
     ```
 
 ### Completion
 
 1. Re-run the test suite to confirm all acceptance criteria are GREEN, including any added while handling hidden requirements.
-2. If a new child Issue was created, verify the GitHub registration before reporting completion: the created Issue number, all 4 `learning_context` fields (`background` / `hints` / `references` / `pre_implementation_checklist`) in the child Issue body, and the new Issue's number/title/URL reflected in the parent or current Issue body. If any check fails, do not report completion — resolve the cause and re-verify.
+2. If a new child or sibling Issue was created, verify the GitHub registration before reporting completion: the created Issue number, all 4 `learning_context` fields (`background` / `hints` / `references` / `pre_implementation_checklist`) in the new Issue's body, and the new Issue's number/title/URL reflected in the parent or current Issue body. If any check fails, do not report completion — resolve the cause and re-verify.
 3. Report completion to the user and prompt them to commit and create a PR.
