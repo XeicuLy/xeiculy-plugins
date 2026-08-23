@@ -128,8 +128,8 @@ This applies to all task decompositions regardless of scope or complexity.
      - `hints`: the **Hints** list (expand or trim to fit the task scope)
      - `references`: the **References** file:line citations
      - `pre_implementation_checklist`: derive 2–4 items from the hints and references (e.g., "Confirm X exists", "Read Y before editing Z")
-2. Self-evaluate the task list according to the "5 perspectives for evaluating a task list" section in `references/decomposition-guidelines.md`.
-3. Present evaluation results (granularity check, cohesion check, independence check, dependency mapping, improvement proposals) to the user.
+2. Self-evaluate the task list according to the "6 Perspectives for Evaluating a Task List" section in `references/decomposition-guidelines.md`.
+3. Present evaluation results (granularity check, cohesion check, independence check, dependency mapping, improvement proposals, educational context check) to the user.
 4. Obtain approval for the Issue structure using `AskUserQuestion`.
    - Example options: `["はい、このタスク分解でIssueを作成してください", "調整が必要です"]`
 
