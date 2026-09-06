@@ -92,18 +92,26 @@ Once all acceptance criteria are GREEN:
 
 Before running the completion check below, if work outside the current acceptance criteria surfaces during implementation:
 
+Every `gh issue view ... --json body --jq .body` fetch below must be checked for success before its output is reused — if the fetch fails, abort the corresponding update (do not call `gh issue edit`) instead of writing back an empty body.
+
 - **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion, implement it, and persist it to the current Issue. Capture the added criterion text into a single-quoted variable (backticks / `$()` / double quotes inside single quotes are never evaluated by the shell; escape any literal single quote in the text as `'\''`), then merge it with the existing body and pass the result back through `--body`:
   ```bash
-  ISSUE_BODY=$(gh issue view [現Issue番号] --json body --jq .body)
+  ISSUE_BODY=$(gh issue view [現Issue番号] --json body --jq .body) || { echo "Failed to fetch current Issue body" >&2; exit 1; }
   NEW_CRITERION='<追加した受入基準>'
   UPDATED_BODY="${ISSUE_BODY}
   - [ ] ${NEW_CRITERION}"
   gh issue edit [現Issue番号] --body "$UPDATED_BODY"
   ```
+  Once this criterion is verified GREEN (see Completion below), check it off in the current Issue body:
+  ```bash
+  ISSUE_BODY=$(gh issue view [現Issue番号] --json body --jq .body) || { echo "Failed to fetch current Issue body" >&2; exit 1; }
+  UPDATED_BODY="${ISSUE_BODY/- [ ] ${NEW_CRITERION}/- [x] ${NEW_CRITERION}}"
+  gh issue edit [現Issue番号] --body "$UPDATED_BODY"
+  ```
 - **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context. `task-planner:github-issue-creator` always creates the new Issue in the current repository (it does not accept a target repository) — `PARENT_REPO` is used only to read and update the parent Issue's body below, never as the creation target. Apply the same single-quoted variable capture (never interpolate raw title/body text directly into the shell command) to whichever Issue receives the child list update:
   - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent, operating on the parent's own repository via `$PARENT_REPO` captured in Pre-Phase:
     ```bash
-    PARENT_BODY=$(gh issue view [親Issue番号] --repo "$PARENT_REPO" --json body --jq .body)
+    PARENT_BODY=$(gh issue view [親Issue番号] --repo "$PARENT_REPO" --json body --jq .body) || { echo "Failed to fetch parent Issue body" >&2; exit 1; }
     NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル> <新規Issue URL>'
     UPDATED_PARENT_BODY="${PARENT_BODY}
     ${NEW_ISSUE_LINE}"
@@ -111,7 +119,7 @@ Before running the completion check below, if work outside the current acceptanc
     ```
   - If the current Issue has no parent, register the new Issue as a child of the current Issue:
     ```bash
-    CURRENT_BODY=$(gh issue view [現Issue番号] --json body --jq .body)
+    CURRENT_BODY=$(gh issue view [現Issue番号] --json body --jq .body) || { echo "Failed to fetch current Issue body" >&2; exit 1; }
     NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル> <新規Issue URL>'
     UPDATED_CURRENT_BODY="${CURRENT_BODY}
     ${NEW_ISSUE_LINE}"
