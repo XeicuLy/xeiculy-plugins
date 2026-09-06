@@ -100,13 +100,13 @@ Every `gh issue view ... --json body --jq .body` fetch below must be checked for
   NEW_CRITERION='<追加した受入基準>'
   UPDATED_BODY="${ISSUE_BODY}
   - [ ] ${NEW_CRITERION}"
-  gh issue edit [現Issue番号] --body "$UPDATED_BODY"
+  gh issue edit [現Issue番号] --body "$UPDATED_BODY" || { echo "Failed to update current Issue body" >&2; exit 1; }
   ```
-  Once this criterion is verified GREEN (see Completion below), check it off in the current Issue body:
+  Once this criterion is verified GREEN (see Completion below), check it off in the current Issue body. Match the added line as a fixed string (not a shell/glob or regex pattern) so literal `[ ]` and any glob characters in `NEW_CRITERION` are handled correctly:
   ```bash
   ISSUE_BODY=$(gh issue view [現Issue番号] --json body --jq .body) || { echo "Failed to fetch current Issue body" >&2; exit 1; }
-  UPDATED_BODY="${ISSUE_BODY/- [ ] ${NEW_CRITERION}/- [x] ${NEW_CRITERION}}"
-  gh issue edit [現Issue番号] --body "$UPDATED_BODY"
+  UPDATED_BODY=$(printf '%s\n' "$ISSUE_BODY" | awk -v old="- [ ] ${NEW_CRITERION}" -v new="- [x] ${NEW_CRITERION}" '$0==old{$0=new} {print}')
+  gh issue edit [現Issue番号] --body "$UPDATED_BODY" || { echo "Failed to update current Issue body" >&2; exit 1; }
   ```
 - **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context. `task-planner:github-issue-creator` always creates the new Issue in the current repository (it does not accept a target repository) — `PARENT_REPO` is used only to read and update the parent Issue's body below, never as the creation target. Apply the same single-quoted variable capture (never interpolate raw title/body text directly into the shell command) to whichever Issue receives the child list update:
   - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent, operating on the parent's own repository via `$PARENT_REPO` captured in Pre-Phase:
@@ -115,7 +115,7 @@ Every `gh issue view ... --json body --jq .body` fetch below must be checked for
     NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル> <新規Issue URL>'
     UPDATED_PARENT_BODY="${PARENT_BODY}
     ${NEW_ISSUE_LINE}"
-    gh issue edit [親Issue番号] --repo "$PARENT_REPO" --body "$UPDATED_PARENT_BODY"
+    gh issue edit [親Issue番号] --repo "$PARENT_REPO" --body "$UPDATED_PARENT_BODY" || { echo "Failed to update parent Issue body" >&2; exit 1; }
     ```
   - If the current Issue has no parent, register the new Issue as a child of the current Issue:
     ```bash
@@ -123,7 +123,7 @@ Every `gh issue view ... --json body --jq .body` fetch below must be checked for
     NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル> <新規Issue URL>'
     UPDATED_CURRENT_BODY="${CURRENT_BODY}
     ${NEW_ISSUE_LINE}"
-    gh issue edit [現Issue番号] --body "$UPDATED_CURRENT_BODY"
+    gh issue edit [現Issue番号] --body "$UPDATED_CURRENT_BODY" || { echo "Failed to update current Issue body" >&2; exit 1; }
     ```
 
 ### Completion
