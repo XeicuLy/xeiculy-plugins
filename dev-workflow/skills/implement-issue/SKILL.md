@@ -100,11 +100,11 @@ Before running the completion check below, if work outside the current acceptanc
   - [ ] ${NEW_CRITERION}"
   gh issue edit [現Issue番号] --body "$UPDATED_BODY"
   ```
-- **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context. Apply the same single-quoted variable capture (never interpolate raw title/body text directly into the shell command) to whichever Issue receives the child list update:
+- **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context. `task-planner:github-issue-creator` always creates the new Issue in the current repository (it does not accept a target repository) — `PARENT_REPO` is used only to read and update the parent Issue's body below, never as the creation target. Apply the same single-quoted variable capture (never interpolate raw title/body text directly into the shell command) to whichever Issue receives the child list update:
   - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent, operating on the parent's own repository via `$PARENT_REPO` captured in Pre-Phase:
     ```bash
     PARENT_BODY=$(gh issue view [親Issue番号] --repo "$PARENT_REPO" --json body --jq .body)
-    NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル>'
+    NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル> <新規Issue URL>'
     UPDATED_PARENT_BODY="${PARENT_BODY}
     ${NEW_ISSUE_LINE}"
     gh issue edit [親Issue番号] --repo "$PARENT_REPO" --body "$UPDATED_PARENT_BODY"
@@ -112,7 +112,7 @@ Before running the completion check below, if work outside the current acceptanc
   - If the current Issue has no parent, register the new Issue as a child of the current Issue:
     ```bash
     CURRENT_BODY=$(gh issue view [現Issue番号] --json body --jq .body)
-    NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル>'
+    NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル> <新規Issue URL>'
     UPDATED_CURRENT_BODY="${CURRENT_BODY}
     ${NEW_ISSUE_LINE}"
     gh issue edit [現Issue番号] --body "$UPDATED_CURRENT_BODY"
