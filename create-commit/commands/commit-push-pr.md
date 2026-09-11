@@ -49,7 +49,7 @@ If the push fails (e.g., remote rejected, no upstream), report the error and sto
 
 Read `../references/pr-template.md` for title format, body sections, section rules, and draft PR criteria.
 
-Infer type, scope, and content from the commit message (Step 1) and the staged diff.
+Infer type, scope, and content from the commit message (Step 1) and the staged diff. The `Staged diff` in Context above is captured before Step 1 runs, so if `commit-flow.md`'s Step 3 staged additional changes (i.e., the initial `Staged diff` was empty), use the `git diff --staged` output produced there instead — otherwise the PR body may be generated from an empty diff.
 
 ---
 
