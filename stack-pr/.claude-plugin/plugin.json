@@ -1,0 +1,19 @@
+{
+  "name": "stack-pr",
+  "version": "1.0.0",
+  "description": "Stacked pull request dependency management for personal development, delegating gh-stack operations to its official AI-agent skill and implementation loops to dev-workflow:implement-issue.",
+  "author": {
+    "name": "XeicuLy",
+    "url": "https://github.com/XeicuLy"
+  },
+  "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/stack-pr",
+  "repository": "https://github.com/XeicuLy/xeiculy-plugins",
+  "license": "MIT",
+  "keywords": [
+    "github",
+    "gh-stack",
+    "stacked-prs",
+    "dependency-graph",
+    "pull-request"
+  ]
+}
