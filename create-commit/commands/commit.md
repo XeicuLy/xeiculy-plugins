@@ -1,5 +1,6 @@
 ---
 description: Create a git commit following Conventional Commits conventions.
+argument-hint: ''
 allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *)
 disable-model-invocation: true
 ---
