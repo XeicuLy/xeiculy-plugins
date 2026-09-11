@@ -4,7 +4,7 @@ description: Full workflow from commit to push to Japanese PR creation.
 when_to_use: >
   "commit and push", "commit push PR", "コミットしてPRを作成", "PR を作って", "push して PR を出して".
 disable-model-invocation: true
-allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *) Bash(git push *) Bash(gh pr create *)
+allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *) Bash(git branch *) Bash(git push *) Bash(gh pr create *)
 ---
 
 # Commit Push PR Skill

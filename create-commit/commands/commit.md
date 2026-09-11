@@ -1,7 +1,7 @@
 ---
 description: Create a git commit following Conventional Commits conventions.
 argument-hint: ''
-allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *)
+allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *) Bash(git branch *)
 disable-model-invocation: true
 ---
 
