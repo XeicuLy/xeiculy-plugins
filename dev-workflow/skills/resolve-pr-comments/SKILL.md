@@ -6,6 +6,7 @@ description: >
   user, then hands off to feature-dev 7-Phase Workflow with TDD enforcement. After implementation,
   replies to each comment individually on GitHub. Not for implementing issues, debugging, CI
   failures, or git ops.
+allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api *) Bash(gh issue view *) Bash(gh pr comment *) Bash(git push origin HEAD) Bash(git log --oneline -1) AskUserQuestion Skill(feature-dev:feature-dev *) SlashCommand(/create-commit:commit)
 ---
 
 # Resolve PR Comments Skill
@@ -100,13 +101,13 @@ If "問題なし、コミットへ" is selected, proceed to commit. If "修正�
 
 ### Commit, Push, and Get Hash
 
-After approval, execute the following sequence **without waiting for additional user input**:
-
-**1. Create commit**
+**1. Invoke the commit command**
 
 ```text
-Skill(skill="create-commit:commit")
+SlashCommand(command="/create-commit:commit")
 ```
+
+`/create-commit:commit` has `disable-model-invocation: true`, so Claude Code blocks this call. When that happens, ask the user to run `/create-commit:commit` themselves and wait for them to confirm the commit is complete before continuing.
 
 **2. Push immediately after commit**
 
@@ -120,7 +121,7 @@ git push origin HEAD
 git log --oneline -1
 ```
 
-> **Important:** Commit → push → get hash → reply to PR comments must be executed as one uninterrupted sequence. Report completion of each step and proceed to the next without stopping for user input.
+> **Important:** Once the commit exists (whether Claude invoked it directly or the user ran it manually), push → get hash → reply to PR comments must be executed as one uninterrupted sequence. Report completion of each step and proceed to the next without stopping for user input.
 
 ### Reply Commands
 
