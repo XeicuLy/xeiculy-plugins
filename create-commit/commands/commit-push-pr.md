@@ -1,15 +1,19 @@
 ---
-name: commit-push-pr
 description: Full workflow from commit to push to Japanese PR creation.
-when_to_use: >
-  "commit and push", "commit push PR", "コミットしてPRを作成", "PR を作って", "push して PR を出して".
-disable-model-invocation: true
+argument-hint: ''
 allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *) Bash(git branch *) Bash(git push *) Bash(gh pr create *)
+disable-model-invocation: true
 ---
 
-# Commit Push PR Skill
+# Commit Push PR
 
 End-to-end workflow for committing staged changes, pushing to remote, and creating a Japanese PR.
+
+## Context
+
+- Working tree: !`git status --short`
+- Staged diff: !`git diff --staged`
+- Branch: !`git branch --show-current`
 
 ## Flow Overview
 
@@ -21,15 +25,9 @@ commit-flow.md（Delegation mode） → git push origin HEAD → PR 生成 → A
 
 ## Step 1: Run the Commit Flow
 
-`/commit` is a user-invoked slash command (`disable-model-invocation: true`) and cannot be reached via `Skill(skill=...)`. Instead, read `../../references/commit-flow.md` directly and follow its steps using the current working tree, staged diff, and branch:
+`/commit` (`create-commit/commands/commit.md`) has `disable-model-invocation: true`, so it cannot be reached via the `SlashCommand` tool. Instead, read `../references/commit-flow.md` directly and follow its steps using `Working tree` / `Staged diff` / `Branch` from Context above.
 
-```bash
-git status --short
-git diff --staged
-git branch --show-current
-```
-
-**Delegation mode**: Per `commit-flow.md`'s own delegation note, skip only the `AskUserQuestion` in Step 6 and proceed directly to commit execution (Step 7).
+**Delegation mode**: Per `commit-flow.md`'s own delegation note, skip only the `AskUserQuestion` in Step 6 and proceed directly to commit execution (Step 7). Step 3 still runs when the staged diff is empty (same condition as normal mode) so that unstaged tracked changes are not missed.
 
 If Step 1 of `commit-flow.md` reports "nothing to commit" (empty working tree) or the commit fails, stop immediately and report to the user.
 
@@ -49,7 +47,7 @@ If the push fails (e.g., remote rejected, no upstream), report the error and sto
 
 ## Step 3: Generate PR Title and Body
 
-Read `../../references/pr-template.md` for title format, body sections, section rules, and draft PR criteria.
+Read `../references/pr-template.md` for title format, body sections, section rules, and draft PR criteria.
 
 Infer type, scope, and content from the commit message (Step 1) and the staged diff.
 
@@ -80,7 +78,7 @@ If the user selects "内容を修正する", ask what to change, update the titl
 
 ## Step 5: Create PR
 
-Execute `gh pr create` using the command format in `../../references/pr-template.md`. Add `--draft` if applicable per draft criteria.
+Execute `gh pr create` using the command format in `../references/pr-template.md`. Add `--draft` if applicable per draft criteria.
 
 Report the resulting PR URL to the user.
 
@@ -88,6 +86,6 @@ Report the resulting PR URL to the user.
 
 ## Additional Resources
 
-- **`../../references/pr-template.md`** — PR タイトル・本文の日本語生成ルール、`gh pr create` コマンド例、ドラフト PR 判定条件
-- **`../../references/commit-flow.md`** — コミット生成の7ステップフロー（`/commit` コマンドと共有、Delegation mode 記述あり）
-- **`../../references/commit-format.md`** — type / scope / subject / body の規約（`/commit` コマンドと共有）
+- **`../references/pr-template.md`** — PR タイトル・本文の日本語生成ルール、`gh pr create` コマンド例、ドラフト PR 判定条件
+- **`../references/commit-flow.md`** — コミット生成の7ステップフロー（`/commit` コマンドと共有、Delegation mode 記述あり）
+- **`../references/commit-format.md`** — type / scope / subject / body の規約（`/commit` コマンドと共有）
