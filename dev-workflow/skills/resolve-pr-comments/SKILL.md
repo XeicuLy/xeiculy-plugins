@@ -6,7 +6,7 @@ description: >
   user, then hands off to feature-dev 7-Phase Workflow with TDD enforcement. After implementation,
   replies to each comment individually on GitHub. Not for implementing issues, debugging, CI
   failures, or git ops.
-allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api *) Bash(gh issue view *) Bash(gh pr comment *) Bash(git push origin HEAD) Bash(git log --oneline -1) AskUserQuestion Skill(feature-dev:feature-dev *) SlashCommand(/create-commit:commit)
+allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -f body=*) Bash(gh issue view *) Bash(gh pr comment *) Bash(git push origin HEAD) Bash(git log --oneline -1) AskUserQuestion Skill(feature-dev:feature-dev *) SlashCommand(/create-commit:commit)
 ---
 
 # Resolve PR Comments Skill
@@ -115,13 +115,17 @@ SlashCommand(command="/create-commit:commit")
 git push origin HEAD
 ```
 
+If this push fails, report the error to the user and stop — do not proceed to step 3 or to any PR reply.
+
 **3. Get commit hash immediately after push**
+
+Only run this step if step 2 succeeded.
 
 ```bash
 git log --oneline -1
 ```
 
-> **Important:** Once the commit exists (whether Claude invoked it directly or the user ran it manually), push → get hash → reply to PR comments must be executed as one uninterrupted sequence. Report completion of each step and proceed to the next without stopping for user input.
+> **Important:** Once the commit exists (whether Claude invoked it directly or the user ran it manually), and the push in step 2 has succeeded, get hash → reply to PR comments must be executed as one uninterrupted sequence. Report completion of each step and proceed to the next without stopping for user input.
 
 ### Reply Commands
 
