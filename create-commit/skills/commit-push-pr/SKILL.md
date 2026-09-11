@@ -4,7 +4,7 @@ description: Full workflow from commit to push to Japanese PR creation.
 when_to_use: >
   "commit and push", "commit push PR", "コミットしてPRを作成", "PR を作って", "push して PR を出して".
 disable-model-invocation: true
-allowed-tools: Bash(git push *) Bash(gh pr create *)
+allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *) Bash(git branch *) Bash(git push *) Bash(gh pr create *)
 ---
 
 # Commit Push PR Skill
@@ -14,22 +14,24 @@ End-to-end workflow for committing staged changes, pushing to remote, and creati
 ## Flow Overview
 
 ```
-create-commit:commit → git push origin HEAD → PR 生成 → AskUserQuestion 確認 → gh pr create
+commit-flow.md（Delegation mode） → git push origin HEAD → PR 生成 → AskUserQuestion 確認 → gh pr create
 ```
 
 ---
 
-## Step 1: Delegate Commit to `create-commit:commit`
+## Step 1: Run the Commit Flow
 
-Invoke the commit skill to handle staging, message generation, and commit execution:
+`/commit` is a user-invoked slash command (`disable-model-invocation: true`) and cannot be reached via `Skill(skill=...)`. Instead, read `../../references/commit-flow.md` directly and follow its steps using the current working tree, staged diff, and branch:
 
-```text
-Skill(skill="create-commit:commit")
+```bash
+git status --short
+git diff --staged
+git branch --show-current
 ```
 
-**Delegation mode**: The commit skill detects it is being called from another skill and skips the interactive `AskUserQuestion` confirmation step (Step 6 of the commit skill). It proceeds directly to commit execution.
+**Delegation mode**: Per `commit-flow.md`'s own delegation note, skip only the `AskUserQuestion` in Step 6 and proceed directly to commit execution (Step 7).
 
-If the commit skill reports "nothing to commit" or fails, stop immediately and report to the user.
+If Step 1 of `commit-flow.md` reports "nothing to commit" (empty working tree) or the commit fails, stop immediately and report to the user.
 
 ---
 
@@ -87,4 +89,5 @@ Report the resulting PR URL to the user.
 ## Additional Resources
 
 - **`../../references/pr-template.md`** — PR タイトル・本文の日本語生成ルール、`gh pr create` コマンド例、ドラフト PR 判定条件
-- **`../../references/commit-format.md`** — type / scope / subject / body の規約（commit スキルと共有）
+- **`../../references/commit-flow.md`** — コミット生成の7ステップフロー（`/commit` コマンドと共有、Delegation mode 記述あり）
+- **`../../references/commit-format.md`** — type / scope / subject / body の規約（`/commit` コマンドと共有）

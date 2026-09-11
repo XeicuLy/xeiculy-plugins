@@ -1,22 +1,10 @@
----
-name: commit
-description: Create a git commit following Conventional Commits conventions.
-when_to_use: >
-  Trigger phrases: "commit", "コミット", "コミットして", "変更をコミット".
-allowed-tools: Bash(git status *) Bash(git diff *) Bash(git add *) Bash(git commit *)
----
+# Commit Flow Reference
 
-# Commit Skill
+Common step-by-step flow for creating a git commit following [Conventional Commits](https://www.conventionalcommits.org/). Used by the `/commit` command.
 
-Read `../../references/commit-format.md` before generating any commit message.
+Read `commit-format.md` before generating any commit message.
 
-> **Delegation mode**: If invoked from another skill (e.g., `commit-push-pr`), skip only the `AskUserQuestion` in Step 6. Step 3 still runs when the staged diff is empty (same condition as normal mode) so that unstaged tracked changes are not missed.
-
-## Context
-
-- Working tree: !`git status --short`
-- Staged diff: !`git diff --staged`
-- Branch: !`git branch --show-current`
+> **Delegation mode**: If invoked as part of another workflow (e.g., `/commit-push-pr`), skip only the `AskUserQuestion` in Step 6. Step 3 still runs when the staged diff is empty (same condition as normal mode) so that unstaged tracked changes are not missed.
 
 ## Flow
 
@@ -59,11 +47,11 @@ If the output is empty (no changes were staged), report that there is nothing to
 
 Use `Staged diff` from Context (or the output of Step 3 if staging was needed).
 
-Infer the `type`, `scope`, and content of the commit message. Refer to `../../references/commit-format.md` for scope inference rules.
+Infer the `type`, `scope`, and content of the commit message. Refer to `commit-format.md` for scope inference rules.
 
 ### Step 5: Generate Commit Message
 
-Generate a commit message following the format in `../../references/commit-format.md`:
+Generate a commit message following the format in `commit-format.md`:
 
 ```text
 <type>(<scope>): <subject>
@@ -94,4 +82,4 @@ Report the resulting commit hash to the user.
 
 ## Additional Resources
 
-- **`../../references/commit-format.md`** — Type list, subject/body rules, scope inference, good/bad examples, commitlint constraints
+- **`commit-format.md`** — Type list, subject/body rules, scope inference, good/bad examples, commitlint constraints
