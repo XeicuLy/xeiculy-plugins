@@ -51,9 +51,10 @@ gh api graphql -f query="
 
 If a parent issue exists:
 
-1. Fetch the full parent issue content:
+1. Fetch the full parent issue content. Store the parent's repository as `PARENT_REPO` — it may differ from the current repository and is reused in Post-Phase:
    ```bash
-   gh issue view <親Issue番号> --repo "<parent.repository.nameWithOwner>"
+   PARENT_REPO="<parent.repository.nameWithOwner>"
+   gh issue view <親Issue番号> --repo "$PARENT_REPO"
    ```
 2. Understand the parent's overall goal: what the parent issue is trying to achieve end-to-end.
 3. Identify where the current issue fits within that goal — which phase, step, or concern it addresses.
@@ -88,5 +89,50 @@ See `../../references/tdd-cycle.md` for the full rules.
 
 Once all acceptance criteria are GREEN:
 
-1. 全受入基準がGREENであることを確認するため、テストスイートを再実行する
-2. 実装完了をユーザーに報告し、コミット・PR 作成を促す
+### Handling Hidden Requirements
+
+Before running the completion check below, if work outside the current acceptance criteria surfaces during implementation:
+
+Every `gh issue view ... --json body --jq .body` fetch below must be checked for success before its output is reused — if the fetch fails, abort the corresponding update (do not call `gh issue edit`) instead of writing back an empty body.
+
+If the current Issue has a parent but `$PARENT_REPO` or the parent Issue number is not available in the current context (e.g., the hand-off to `feature-dev` started a fresh context), re-run the Parent Issue Resolution GraphQL query from Pre-Phase to obtain them again before using them below.
+
+- **In-scope check**: Treat it as in-scope only if it supports the current Issue's existing deliverable without introducing a new artifact, an API/schema change, a data migration, or an independent acceptance flow (e.g., adjusting an existing check's message or tightening an existing validation). If in-scope, add it as an additional acceptance criterion, implement it, and persist it to the current Issue. Capture the added criterion text into a single-quoted variable (backticks / `$()` / double quotes inside single quotes are never evaluated by the shell; escape any literal single quote in the text as `'\''`), then merge it with the existing body and pass the result back through `--body`:
+  ```bash
+  ISSUE_BODY=$(gh issue view [現Issue番号] --json body --jq .body) || { echo "Failed to fetch current Issue body" >&2; exit 1; }
+  NEW_CRITERION='<追加した受入基準>'
+  UPDATED_BODY="${ISSUE_BODY}
+  - [ ] ${NEW_CRITERION}"
+  gh issue edit [現Issue番号] --body "$UPDATED_BODY" || { echo "Failed to update current Issue body" >&2; exit 1; }
+  ```
+  Once this criterion is verified GREEN (see Completion below), check it off in the current Issue body. Match the added line as a fixed string (not a shell/glob or regex pattern) so literal `[ ]` and any glob characters in `NEW_CRITERION` are handled correctly:
+  ```bash
+  ISSUE_BODY=$(gh issue view [現Issue番号] --json body --jq .body) || { echo "Failed to fetch current Issue body" >&2; exit 1; }
+  OLD_LINE="- [ ] ${NEW_CRITERION}"
+  NEW_LINE="- [x] ${NEW_CRITERION}"
+  UPDATED_BODY=$(OLD_LINE="$OLD_LINE" NEW_LINE="$NEW_LINE" awk 'BEGIN{n=0} $0==ENVIRON["OLD_LINE"]{$0=ENVIRON["NEW_LINE"]; n++} {print} END{exit (n==1) ? 0 : 1}' <<< "$ISSUE_BODY") || { echo "Failed to find exactly one matching acceptance criterion line" >&2; exit 1; }
+  gh issue edit [現Issue番号] --body "$UPDATED_BODY" || { echo "Failed to update current Issue body" >&2; exit 1; }
+  ```
+- **Otherwise**, call `Skill(skill="task-planner:github-issue-creator")` to split it into a new child Issue. Fill `learning_context` (`background` / `hints` / `references` / `pre_implementation_checklist`) with the same schema as the existing child Issue template so the new Issue carries equivalent context. `task-planner:github-issue-creator` always creates the new Issue in the current repository (it does not accept a target repository) — `PARENT_REPO` is used only to read and update the parent Issue's body below, never as the creation target. Apply the same single-quoted variable capture (never interpolate raw title/body text directly into the shell command) to whichever Issue receives the child list update:
+  - If the current Issue has a parent (see Pre-Phase Parent Issue Resolution), register the new Issue as a sibling under that same parent, operating on the parent's own repository via `$PARENT_REPO` captured in Pre-Phase:
+    ```bash
+    PARENT_BODY=$(gh issue view [親Issue番号] --repo "$PARENT_REPO" --json body --jq .body) || { echo "Failed to fetch parent Issue body" >&2; exit 1; }
+    NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル> <新規Issue URL>'
+    UPDATED_PARENT_BODY="${PARENT_BODY}
+    ${NEW_ISSUE_LINE}"
+    gh issue edit [親Issue番号] --repo "$PARENT_REPO" --body "$UPDATED_PARENT_BODY" || { echo "Failed to update parent Issue body" >&2; exit 1; }
+    ```
+  - If the current Issue has no parent, register the new Issue as a child of the current Issue:
+    ```bash
+    CURRENT_BODY=$(gh issue view [現Issue番号] --json body --jq .body) || { echo "Failed to fetch current Issue body" >&2; exit 1; }
+    NEW_ISSUE_LINE='- #<新規Issue番号> <新規Issueタイトル> <新規Issue URL>'
+    UPDATED_CURRENT_BODY="${CURRENT_BODY}
+    ${NEW_ISSUE_LINE}"
+    gh issue edit [現Issue番号] --body "$UPDATED_CURRENT_BODY" || { echo "Failed to update current Issue body" >&2; exit 1; }
+    ```
+
+### Completion
+
+1. Re-run the test suite to confirm all acceptance criteria are GREEN, including any added while handling hidden requirements.
+2. If a new child or sibling Issue was created, verify the GitHub registration before reporting completion: the created Issue number, all 4 `learning_context` fields (`background` / `hints` / `references` / `pre_implementation_checklist`) in the new Issue's body, and the new Issue's number/title/URL reflected in the parent or current Issue body. If any check fails, do not report completion — resolve the cause and re-verify.
+3. Report completion to the user and prompt them to commit and create a PR.
