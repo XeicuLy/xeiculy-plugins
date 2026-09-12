@@ -23,6 +23,8 @@ gh api repos/$REPO/pulls/<PR番号>/comments --paginate
 gh api repos/$REPO/issues/<PR番号>/comments --paginate
 ```
 
+Check the exit status of each of the three `gh api` commands above before proceeding. If any of them fails, report the failing endpoint together with `gh`'s stderr error and stop — do not proceed to recording, classification, implementation, commits, or replies. Only continue once all three retrievals have succeeded.
+
 If the PR is linked to an issue, fetch its requirements as well:
 
 ```bash
