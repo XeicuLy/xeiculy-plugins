@@ -6,7 +6,7 @@ description: >
   user, then hands off to feature-dev 7-Phase Workflow with TDD enforcement. After implementation,
   replies to each comment individually on GitHub. Not for implementing issues, debugging, CI
   failures, or git ops.
-allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -F body=@*pr-reply-*.md) Bash(gh issue view *) Bash(gh pr comment * --body-file *pr-reply-*.md) Bash(git push origin HEAD) Bash(git log --oneline -1) AskUserQuestion Edit(//**/pr-reply-*.md) Skill(feature-dev:feature-dev *) SlashCommand(/create-commit:commit)
+allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -F body=@*pr-reply-*.md) Bash(gh issue view *) Bash(gh pr comment * --body-file *pr-reply-*.md) Bash(git push origin HEAD) Bash(git log -1 --format=%H) AskUserQuestion Edit(//**/pr-reply-*.md) Skill(feature-dev:feature-dev) SlashCommand(/create-commit:commit)
 ---
 
 # Resolve PR Comments Skill
@@ -104,7 +104,7 @@ If "問題なし、コミットへ" is selected, proceed to commit. If "修正�
 **1. Record the commit hash before committing**
 
 ```bash
-git log --oneline -1
+git log -1 --format=%H
 ```
 
 Keep this as `<before_hash>`.
@@ -120,7 +120,7 @@ SlashCommand(command="/create-commit:commit")
 **3. Verify a new commit was actually created**
 
 ```bash
-git log --oneline -1
+git log -1 --format=%H
 ```
 
 Compare this output to `<before_hash>`. If it is unchanged, no commit was created — report the error to the user and stop. Do not proceed to step 4 or to any PR reply. If it changed, keep this output as `<commit_hash>` for use in the replies below.
