@@ -17,7 +17,7 @@ Issue間の依存関係グラフの解決やスタックPRの運用（`gh stack`
   ```
 - gh-stack公式のAIエージェント向けskillがインストール済みであること:
   ```bash
-  gh skill install github/gh-stack
+  gh skill install github/gh-stack skills/gh-stack/SKILL.md --agent claude-code
   ```
 
 ## インストール
