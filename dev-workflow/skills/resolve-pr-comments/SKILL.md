@@ -6,7 +6,7 @@ description: >
   user, then hands off to feature-dev 7-Phase Workflow with TDD enforcement. After implementation,
   replies to each comment individually on GitHub. Not for implementing issues, debugging, CI
   failures, or git ops.
-allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -F body=*) Bash(gh issue view *) Bash(gh pr comment * --body-file *) Bash(git push origin HEAD) Bash(git log --oneline -1) AskUserQuestion Edit(//**/pr-reply-*.md) Skill(feature-dev:feature-dev *) SlashCommand(/create-commit:commit)
+allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -F body=@*pr-reply-*.md) Bash(gh issue view *) Bash(gh pr comment * --body-file *pr-reply-*.md) Bash(git push origin HEAD) Bash(git log --oneline -1) AskUserQuestion Edit(//**/pr-reply-*.md) Skill(feature-dev:feature-dev *) SlashCommand(/create-commit:commit)
 ---
 
 # Resolve PR Comments Skill
@@ -101,7 +101,15 @@ If "問題なし、コミットへ" is selected, proceed to commit. If "修正�
 
 ### Commit, Push, and Get Hash
 
-**1. Invoke the commit command**
+**1. Record the commit hash before committing**
+
+```bash
+git log --oneline -1
+```
+
+Keep this as `<before_hash>`.
+
+**2. Invoke the commit command**
 
 ```text
 SlashCommand(command="/create-commit:commit")
@@ -109,23 +117,23 @@ SlashCommand(command="/create-commit:commit")
 
 `/create-commit:commit` has `disable-model-invocation: true`, so Claude Code blocks this call. When that happens, ask the user to run `/create-commit:commit` themselves and wait for them to confirm the commit is complete before continuing.
 
-**2. Push immediately after commit**
-
-```bash
-git push origin HEAD
-```
-
-If this push fails, report the error to the user and stop — do not proceed to step 3 or to any PR reply.
-
-**3. Get commit hash immediately after push**
-
-Only run this step if step 2 succeeded.
+**3. Verify a new commit was actually created**
 
 ```bash
 git log --oneline -1
 ```
 
-> **Important:** Once the commit exists (whether Claude invoked it directly or the user ran it manually), and the push in step 2 has succeeded, get hash → reply to PR comments must be executed as one uninterrupted sequence. Report completion of each step and proceed to the next without stopping for user input.
+Compare this output to `<before_hash>`. If it is unchanged, no commit was created — report the error to the user and stop. Do not proceed to step 4 or to any PR reply. If it changed, keep this output as `<commit_hash>` for use in the replies below.
+
+**4. Push immediately after the new commit is confirmed**
+
+```bash
+git push origin HEAD
+```
+
+If this push fails, report the error to the user and stop — do not proceed to step 5 or to any PR reply.
+
+> **Important:** Once step 3 confirms a new commit exists and the push in step 4 has succeeded, reply to PR comments must be executed as one uninterrupted sequence using the `<commit_hash>` captured in step 3. Report completion of each step and proceed to the next without stopping for user input.
 
 ### Reply Commands
 
