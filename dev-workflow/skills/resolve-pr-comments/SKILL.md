@@ -6,20 +6,21 @@ description: >
   user, then hands off to feature-dev 7-Phase Workflow with TDD enforcement. After implementation,
   replies to each comment individually on GitHub. Not for implementing issues, debugging, CI
   failures, or git ops.
-allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -F body=@*pr-reply-*.md) Bash(gh issue view *) Bash(gh api repos/*/issues/*/comments -F body=@*pr-reply-*.md) Bash(git push origin HEAD) Bash(git log -1 --format=%H) AskUserQuestion Edit(//**/pr-reply-*.md) Skill(feature-dev:feature-dev) SlashCommand(/create-commit:commit)
+allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/issues/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -F body=@*pr-reply-*.md) Bash(gh issue view *) Bash(gh api repos/*/issues/*/comments -F body=@*pr-reply-*.md) Bash(git push origin HEAD) Bash(git log -1 --format=%H) AskUserQuestion Edit(//**/pr-reply-*.md) Skill(feature-dev:feature-dev) SlashCommand(/create-commit:commit)
 ---
 
 # Resolve PR Comments Skill
 
 ## Pre-Phase: Collect and Classify Comments
 
-Detect the current repository, then fetch the PR and its review comments:
+Detect the current repository, then fetch the PR, its review comments, and its PR-level (Issue) comments:
 
 ```bash
 REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
 gh pr view <PR番号> --repo "$REPO"
 gh api repos/$REPO/pulls/<PR番号>/reviews
 gh api repos/$REPO/pulls/<PR番号>/comments
+gh api repos/$REPO/issues/<PR番号>/comments
 ```
 
 If the PR is linked to an issue, fetch its requirements as well:
