@@ -50,9 +50,14 @@ export function validatePluginManifest(manifest: PluginManifest): string[] {
   }
 
   if (manifest.author !== undefined) {
-    const author = manifest.author as Record<string, unknown>;
-    if (author.name !== undefined && !isString(author.name)) {
-      errors.push('author.name must be a string');
+    const author = manifest.author;
+    if (author === null || typeof author !== 'object' || Array.isArray(author)) {
+      errors.push('author must be an object');
+    } else {
+      const { name } = author as Record<string, unknown>;
+      if (name !== undefined && !isString(name)) {
+        errors.push('author.name must be a string');
+      }
     }
   }
 

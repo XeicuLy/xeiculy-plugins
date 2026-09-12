@@ -49,6 +49,18 @@ describe('validatePluginManifest', () => {
     );
   });
 
+  it('author が null の場合エラーを返す', () => {
+    expect(validatePluginManifest({ ...validManifest, author: null })).toContain('author must be an object');
+  });
+
+  it('author が文字列の場合エラーを返す', () => {
+    expect(validatePluginManifest({ ...validManifest, author: 'XeicuLy' })).toContain('author must be an object');
+  });
+
+  it('author が配列の場合エラーを返す', () => {
+    expect(validatePluginManifest({ ...validManifest, author: ['XeicuLy'] })).toContain('author must be an object');
+  });
+
   it('keywords が文字列配列でない場合エラーを返す', () => {
     expect(validatePluginManifest({ ...validManifest, keywords: ['ok', 123] })).toContain(
       'keywords must be an array of strings',
