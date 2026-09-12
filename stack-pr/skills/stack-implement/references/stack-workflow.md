@@ -69,7 +69,7 @@ Branch Naming Rule algorithm above for how to derive it precisely).
 1. Resolve dependency order (out of scope here — see the future dependency-graph skill)
 2. Issue #100:
    - Pre-Phase: fetch Issue #100
-   - Delegate: gh stack init issue-100-stack-pr
+   - Delegate: gh stack init issue-100-stack-pr-gh-stack
    - feature-dev 7-Phase implementation
    - Post-Phase Completion: all criteria GREEN
    - Delegate: gh stack push
