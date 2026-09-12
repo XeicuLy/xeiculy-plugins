@@ -6,7 +6,7 @@ description: >
   user, then hands off to feature-dev 7-Phase Workflow with TDD enforcement. After implementation,
   replies to each comment individually on GitHub. Not for implementing issues, debugging, CI
   failures, or git ops.
-allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -F body=*) Bash(gh issue view *) Bash(gh pr comment * --body-file *) Bash(git push origin HEAD) Bash(git log --oneline -1) AskUserQuestion Write Skill(feature-dev:feature-dev *) SlashCommand(/create-commit:commit)
+allowed-tools: Bash(gh repo view *) Bash(gh pr view *) Bash(gh api repos/*/pulls/*/reviews) Bash(gh api repos/*/pulls/*/comments) Bash(gh api repos/*/pulls/*/comments/*/replies -F body=*) Bash(gh issue view *) Bash(gh pr comment * --body-file *) Bash(git push origin HEAD) Bash(git log --oneline -1) AskUserQuestion Edit(//**/pr-reply-*.md) Skill(feature-dev:feature-dev *) SlashCommand(/create-commit:commit)
 ---
 
 # Resolve PR Comments Skill
@@ -164,8 +164,10 @@ gh api repos/$REPO/pulls/<PR番号>/comments/<comment_id>/replies \
 
 1. For each comment, write its reply body to its own temp file via `Write` (never interpolate the body text into a Bash command string)
 2. Construct reply commands for all comments, referencing only the temp file paths
-3. Execute all replies in sequence immediately — do not wait for user confirmation between replies
-4. Report to the user once all replies are posted
+3. Execute replies in sequence immediately — do not wait for user confirmation between replies. After each command, check its exit status:
+   - **Success:** record the `comment_id` as replied and continue to the next comment.
+   - **Failure:** record the `comment_id` and the error output, then continue to the next comment (a failed reply on one comment must not block replies to the others).
+4. Once all replies have been attempted, report the outcome to the user as two lists: successfully replied `comment_id`s, and failed `comment_id`s with their errors.
 
 > **Note:** `gh api` replies create threaded replies on the target comment. For PR-level comments that do not support threads, post as a new comment instead: `gh pr comment <PR番号> --body-file <scratchpad>/pr-reply-<comment_id>.md`.
 
