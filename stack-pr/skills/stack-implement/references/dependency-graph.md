@@ -12,7 +12,7 @@ This spec assumes Issues were created by `task-planner:github-issue-creator` (`-
 ## Input
 
 - **Parent Issue number** (required) — passed from the caller (e.g. the user, or `stack-implement/SKILL.md`'s Pre-Phase)
-- **`dependency_table`** (optional) — the `child_issues` array from the original `task-planner:github-issue-creator` payload (see `task-planner/skills/task-breakdown/references/issue-schema.md`), if the caller still has it. Its `id` / `depends_on` values are local task IDs (e.g. `T1`), not GitHub issue numbers. Used only for the cross-check in Step 4.
+- **`dependency_table`** (optional) — the explicit dependency-pair list from the original `task-planner:github-issue-creator` payload (see `task-planner/skills/task-breakdown/references/issue-schema.md`), if the caller still has it. It is a separate field from `child_issues`: an array of `{ "from": "<local ID>", "to": "<local ID>" }` pairs meaning "`to` depends on `from`", using local task IDs (e.g. `T1`), not GitHub issue numbers. Used only for the cross-check in Step 4.
 - **`child_issue_id_map`** (optional, required if `dependency_table` is supplied) — the local-ID-to-GitHub-issue-number mapping recorded by `github-issue-creator` Step 2 when it created each child Issue (e.g. `{"T1": 99, "T2": 100}`). Used to normalize `dependency_table` before the Step 4 comparison.
 
 ---
@@ -25,6 +25,8 @@ gh issue view <親Issue番号> --repo <owner>/<repo> --json number,title,state,s
 
 `subIssues.nodes[]` gives each direct sub-issue's `number`, `title`, `state` (`OPEN` / `CLOSED`). This is the full node set of the graph. If `subIssues.totalCount` is 0, stop and report to the user — there is nothing to stack.
 
+`gh issue view`'s `subIssues` field caps `nodes[]` at 100 entries regardless of the true count. If `subIssues.nodes | length` does not equal `subIssues.totalCount`, the node list was truncated — halt immediately and report this to the user rather than building a graph from a partial node set.
+
 ## Step 2: Fetch each sub-issue's `blockedBy`
 
 For every sub-issue number from Step 1:
@@ -35,7 +37,7 @@ gh issue view <子Issue番号> --repo <owner>/<repo> --json number,title,state,b
 
 If `subIssues.totalCount` is greater than 0, this sub-issue itself has children — a nested tree the flat-graph assumption at the top of this document does not support. Halt immediately and report it as a validation error per Step 6, without proceeding to the edge collection below.
 
-`blockedBy.nodes[]` gives the Issues that must close before this one can start. Collect `(from, to)` edges as `to depends on from` for every `blockedBy` entry whose number is in the Step 1 node set.
+`blockedBy.nodes[]` gives the Issues that must close before this one can start, capped at 50 entries regardless of the true count. If `blockedBy.nodes | length` does not equal `blockedBy.totalCount`, the dependency list was truncated — halt immediately and report this to the user rather than resolving edges from a partial dependency set. Otherwise, collect `(from, to)` edges as `to depends on from` for every `blockedBy` entry whose number is in the Step 1 node set.
 
 If a `blockedBy` entry's number is **not** in the Step 1 node set (a dependency on an Issue outside this parent's sub-issue tree — e.g. a cross-cutting Issue like #95 blocking both #99 and #100 belongs to the _same_ parent tree and is fine, but a dependency on an unrelated Issue elsewhere is not), report it to the user as an external dependency and ask whether to treat it as already satisfied (if `CLOSED`) or block the whole stack (if `OPEN`). Do not silently drop it.
 
@@ -47,7 +49,7 @@ If a `blockedBy` entry's number is **not** in the Step 1 node set (a dependency 
 
 ## Step 4: Cross-check against `dependency_table` (optional)
 
-If the caller supplied a `dependency_table`, first normalize it: using `child_issue_id_map`, convert every `child_issues[*].id` and each entry of `depends_on` from its local ID (e.g. `T1`) to the corresponding GitHub issue number, producing an edge set in the same `(from, to)` shape as Step 3. Then verify that the edge set built in Step 3 exactly matches this normalized edge set (same check `github-issue-creator` Step -1 already performs before Issue creation — this step re-verifies that GitHub's live state still agrees with it). On mismatch, report the specific differing pairs and halt — do not guess which source is correct.
+If the caller supplied a `dependency_table`, first normalize it: using `child_issue_id_map`, convert each pair's `from` and `to` local ID (e.g. `T1`) to the corresponding GitHub issue number, producing an edge set in the same `(from, to)` shape as Step 3. Then verify that the edge set built in Step 3 exactly matches this normalized edge set (same check `github-issue-creator` Step -1 already performs before Issue creation — this step re-verifies that GitHub's live state still agrees with it). On mismatch, report the specific differing pairs and halt — do not guess which source is correct.
 
 If no `dependency_table` is supplied, skip this step; the graph from Step 3 (live GitHub state) is authoritative.
 
