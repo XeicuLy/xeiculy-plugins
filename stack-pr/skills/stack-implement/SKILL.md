@@ -38,8 +38,9 @@ allowed-tools: Bash(gh repo view *) Bash(gh issue view *) AskUserQuestion Skill(
      for context. Since a local commit existing on the branch does not guarantee it was actually
      pushed (step 5 of a prior run may have failed after step 4 succeeded), the Push Safety Net
      (below the HARD-GATE) re-pushes every already-stacked Issue once — but only after the user
-     approves the stack order. Resume detection itself performs no `gh-stack` delegation; it only
-     classifies branches, so nothing changes remotely before approval.
+     approves the stack order. Resume detection's only `gh-stack` delegation is the read-only
+     `gh stack view --json` call above — permitted before approval as the HARD-GATE below states
+     explicitly — so nothing changes remotely before approval.
    - Every Issue that does not match (no branch yet, or a branch with no commit beyond its parent)
      is still **to implement** via the full Per-Issue Loop, in the same relative order Step 2
      produced.
@@ -73,12 +74,18 @@ fully open chain has neither).
 ## HARD-GATE: Approve Stack Order
 
 <HARD-GATE>
-Do not invoke Skill(dev-workflow:implement-issue), SlashCommand(/create-commit:commit), or
-Skill(gh-stack:gh-stack) for any Issue until the user has approved the "スタック実装順序（今回の実行対象）"
-list via AskUserQuestion. This applies on every invocation without exception — a fresh chain, a
-single remaining Issue after a resume, and a full re-run all gate the same way, since the order is
-re-derived from live state each time and could differ from what was approved previously (e.g. a
-dependency was added or removed on GitHub since the last run).
+Do not invoke Skill(dev-workflow:implement-issue), SlashCommand(/create-commit:commit), or any
+write-facing `Skill(gh-stack:gh-stack)` delegation (`gh stack init`, `add`, `push`, `submit`, or any
+other operation that changes local or remote state) for any Issue until the user has approved the
+"スタック実装順序（今回の実行対象）" list via AskUserQuestion. This applies on every invocation without
+exception — a fresh chain, a single remaining Issue after a resume, and a full re-run all gate the
+same way, since the order is re-derived from live state each time and could differ from what was
+approved previously (e.g. a dependency was added or removed on GitHub since the last run).
+
+The sole exception is Pre-Phase Step 3's resume detection: `Skill(skill="gh-stack:gh-stack")` →
+`gh stack view --json` is read-only and is permitted before approval, since without it the Output
+Format above cannot distinguish 既にスタック済み from 今回の実行対象. No other `gh-stack` operation is
+permitted before approval.
 </HARD-GATE>
 
 ```text
@@ -110,6 +117,13 @@ Per-Issue Loop below — for every Issue Pre-Phase Step 3 classified as **alread
 delegation per already-stacked Issue, not a single call covering all of them. `gh stack push` is
 idempotent, so this is safe whether or not it was already pushed in a prior run; skip this
 delegation entirely when there were no already-stacked Issues.
+
+**On failure**: if any of these `gh stack push` delegations reports an error, halt immediately —
+do not proceed to the remaining already-stacked Issues, the Per-Issue Loop, or Post-Phase. Report
+which Issue's push failed and the error, following the same halt / no-rollback / report rules as
+Failure Handling below. Resolving the underlying problem and re-invoking this skill with the same
+parent Issue number resumes correctly: the failed Issue's branch still classifies as
+already-stacked, so the Push Safety Net retries exactly that push on the next run.
 
 If the approved "スタック実装順序（今回の実行対象）" list is empty (every Issue in the chain was already
 stacked), skip the Per-Issue Loop entirely and proceed straight to Post-Phase once this push
