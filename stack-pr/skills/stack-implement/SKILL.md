@@ -36,11 +36,10 @@ allowed-tools: Bash(gh repo view *) Bash(gh issue view *) AskUserQuestion Skill(
      exclude it from the Per-Issue Loop below (do not re-invoke `dev-workflow:implement-issue` or
      `/create-commit:commit` for it) — but keep it visible in the report (see Output Format below)
      for context. Since a local commit existing on the branch does not guarantee it was actually
-     pushed (step 5 of a prior run may have failed after step 4 succeeded), also delegate
-     `Skill(skill="gh-stack:gh-stack")` → `gh stack push` for every already-stacked Issue at this
-     point, once, before the Per-Issue Loop starts. `gh stack push` is idempotent — re-pushing a
-     branch that was already pushed in a prior run is a safe no-op — so this needs no separate
-     "was it pushed" check.
+     pushed (step 5 of a prior run may have failed after step 4 succeeded), the Push Safety Net
+     (below the HARD-GATE) re-pushes every already-stacked Issue once — but only after the user
+     approves the stack order. Resume detection itself performs no `gh-stack` delegation; it only
+     classifies branches, so nothing changes remotely before approval.
    - Every Issue that does not match (no branch yet, or a branch with no commit beyond its parent)
      is still **to implement** via the full Per-Issue Loop, in the same relative order Step 2
      produced.
@@ -102,6 +101,20 @@ not mean re-ordering the list in place. Tell the user which relationship to edit
 (`gh issue edit --add-blocked-by` / `--remove-blocked-by`, or restructuring sub-issues), then ask
 them to re-invoke this skill so Pre-Phase re-resolves the graph from the corrected state.
 
+### Push Safety Net for Already-Stacked Issues
+
+Immediately after the user selects "はい、この順序で実装してください" above — and before Step 1 of the
+Per-Issue Loop below — for every Issue Pre-Phase Step 3 classified as **already stacked**, delegate
+`Skill(skill="gh-stack:gh-stack")` → `gh stack push` once, on that Issue's own branch (the same
+`issue-<Issue番号>-<slug>` name computed via the Branch Naming Rule in Pre-Phase Step 3) — one
+delegation per already-stacked Issue, not a single call covering all of them. `gh stack push` is
+idempotent, so this is safe whether or not it was already pushed in a prior run; skip this
+delegation entirely when there were no already-stacked Issues.
+
+If the approved "スタック実装順序（今回の実行対象）" list is empty (every Issue in the chain was already
+stacked), skip the Per-Issue Loop entirely and proceed straight to Post-Phase once this push
+completes.
+
 ---
 
 ## Per-Issue Loop
@@ -152,10 +165,9 @@ reports an error:
   (now shorter) remaining order before the loop continues.
 - If the failed Issue's commit succeeded but the following step 5 `gh stack push` is what actually
   failed, resume detection will find its branch already has a commit and classify it as
-  **already stacked** — it is not re-implemented. Instead, Pre-Phase's resume handling
-  (re-)delegates `gh stack push` for it as part of its already-stacked safety net before the
-  Per-Issue Loop starts, retrying exactly the step that failed without redoing implementation or
-  committing again.
+  **already stacked** — it is not re-implemented. Instead, the Push Safety Net (re-)delegates
+  `gh stack push` for it once the user re-approves the (now shorter) remaining order, retrying
+  exactly the step that failed without redoing implementation or committing again.
 - If the failure happened before any commit was produced (`dev-workflow:implement-issue` itself
   failing, or `/create-commit:commit` producing no new commit), resume detection finds no commit
   for that Issue and re-invokes `dev-workflow:implement-issue` for it from scratch on the next run;
@@ -166,7 +178,9 @@ reports an error:
 
 ## Post-Phase: Completion
 
-After the last Issue in the approved list completes step 5:
+After the last Issue in the approved list completes step 5, **or immediately after the Push Safety
+Net above when the approved list was empty** (every Issue in the chain was already stacked — e.g. a
+prior run pushed everything but `gh stack submit --auto` itself failed or was never reached):
 
 1. Delegate the final submit, exactly once for the whole chain:
    `Skill(skill="gh-stack:gh-stack")` → `gh stack submit --auto`.
@@ -215,11 +229,14 @@ cycle rather than the finished dependency-graph result).
    ```
 
 4. HARD-GATE: user approves the remaining order.
-5. `#100`: `gh stack add issue-100-gh-stack-delegation-table` (still stacks on top of `#99`'s
+5. Push Safety Net: `gh stack push` for `#99`'s branch (the one already-stacked Issue) — a no-op
+   here since it was already pushed at the end of Run 1, but run anyway to cover the case where
+   push (not the implementation) was what failed in a prior run.
+6. `#100`: `gh stack add issue-100-gh-stack-delegation-table` (still stacks on top of `#99`'s
    already-pushed branch) → implement → commit → push. Succeeds this time.
-6. `#104`: `gh stack add issue-104-stack-implement-skill` → implement → commit → push. Succeeds —
+7. `#104`: `gh stack add issue-104-stack-implement-skill` → implement → commit → push. Succeeds —
    last Issue in the list.
-7. Post-Phase: `gh stack submit --auto`, once, for the whole `#99 → #100 → #104` chain.
+8. Post-Phase: `gh stack submit --auto`, once, for the whole `#99 → #100 → #104` chain.
 
 ---
 
