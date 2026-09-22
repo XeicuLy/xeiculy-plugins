@@ -7,7 +7,7 @@ description: >
   order, gates on user approval, then loops dev-workflow:implement-issue → /create-commit:commit
   → the official gh-stack skill per Issue. Not for a single standalone Issue with no dependents
   (use dev-workflow:implement-issue directly), and not for resolving PR review comments.
-allowed-tools: Bash(gh repo view *) Bash(gh issue view *) Bash(git branch --list *) Bash(git branch -D *) AskUserQuestion Skill(dev-workflow:implement-issue *) SlashCommand(/create-commit:commit) Skill(gh-stack:gh-stack *)
+allowed-tools: Bash(gh repo view *) Bash(gh issue view *) Bash(git branch --list *) Bash(git branch -D issue-*) AskUserQuestion Skill(dev-workflow:implement-issue *) SlashCommand(/create-commit:commit) Skill(gh-stack:gh-stack *)
 ---
 
 # Stack Implement Skill
@@ -150,10 +150,15 @@ stack's topmost branch to attach a new branch correctly. `gh stack top` is idemp
 already at the top), so running it unconditionally here is safe on a fresh chain, a resumed chain,
 and a re-run alike, and does not itself require a `gh stack init`/`add` to already exist.
 
-If `gh stack top` fails (e.g. no local stack exists yet — a genuinely fresh chain with no
-already-stacked Issues), treat this as expected and continue to the Push Safety Net below rather
-than halting; the first Issue's `gh stack init` in the Per-Issue Loop creates the stack in that
-case.
+`gh stack top` follows the same official exit code mapping cited in Pre-Phase Step 3: exit code 2
+means the current branch is not in any stack. Only when it returns **exit code 2** — a genuinely
+fresh chain with no already-stacked Issues, nothing yet to jump to — is this expected: continue to
+the Push Safety Net below rather than halting; the first Issue's `gh stack init` in the Per-Issue
+Loop creates the stack in that case. Any other non-zero exit code (e.g. a GitHub API failure, the
+stack being locked, a rebase conflict, or invalid arguments) is not expected here and must not be
+treated as a fresh chain: halt immediately, report the exit code and the command's own error output,
+and do not proceed to the Push Safety Net, Per-Issue Loop, or Post-Phase. Resolving the underlying
+problem and re-invoking this skill with the same parent Issue number re-runs this same check.
 
 ### Push Safety Net for Already-Stacked Issues
 
@@ -246,8 +251,12 @@ reports an error:
   reuse an existing empty branch is up to `gh-stack:gh-stack`, not something this skill assumes —
   if it reports an error for this reason, delegate `Skill(skill="gh-stack:gh-stack")` to check out
   the existing empty branch and continue on it if it supports resuming onto one; only if it does
-  not, delete the stale local branch (`git branch -D issue-<Issue番号>-<slug>`) and retry the same
-  `gh stack init`/`add` call. Report to the user which path was taken before proceeding to step 3.
+  not, delete the stale local branch — but only after confirming the name to delete is
+  character-for-character identical to the `issue-<Issue番号>-<slug>` name this same iteration
+  computed in step 1 for this same Issue (never a different Issue's branch, and never a name derived
+  from anywhere else); halt without deleting anything if the names do not match exactly. Once
+  confirmed, run `git branch -D issue-<Issue番号>-<slug>` and retry the same `gh stack init`/`add`
+  call. Report to the user which path was taken before proceeding to step 3.
 
 ---
 
