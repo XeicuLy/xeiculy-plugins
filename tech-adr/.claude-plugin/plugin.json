@@ -1,0 +1,13 @@
+{
+  "name": "tech-adr",
+  "version": "1.0.0",
+  "description": "Structured dialogue support for solo developers that turns technical judgment calls (refactoring, changeability, database choice, performance, running cost) into MADR-format Architecture Decision Records under docs/adr/.",
+  "author": {
+    "name": "XeicuLy",
+    "url": "https://github.com/XeicuLy"
+  },
+  "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/tech-adr",
+  "repository": "https://github.com/XeicuLy/xeiculy-plugins",
+  "license": "MIT",
+  "keywords": ["adr", "architecture-decision-record", "madr", "tech-decision", "documentation"]
+}
