@@ -81,9 +81,9 @@ Conventional Commits 規約に従ったコミット作成・プッシュ・PR �
 
 **機能:**
 
-- `/commit`: ステージ済み差分を解析して Conventional Commits 形式のメッセージを自動生成し、確認後にコミット
-- `/commit-push-pr`: コミット → プッシュ → PR 作成を一気通貫で実行
-- `/clean-gone`: リモートで削除済みのローカルブランチを一覧表示・選択削除
+- `/create-commit:commit`: ステージ済み差分を解析して Conventional Commits 形式のメッセージを自動生成し、確認後にコミット
+- `/create-commit:commit-push-pr`: コミット → プッシュ → PR 作成を一気通貫で実行
+- `/create-commit:clean-gone`: リモートで削除済みのローカルブランチを一覧表示・選択削除
 
 **前提条件:** `git` インストール済み・`commit-push-pr` 使用時は `gh` CLI インストール済み・GitHub 認証済み
 
