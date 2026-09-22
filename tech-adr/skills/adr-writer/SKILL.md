@@ -36,7 +36,7 @@ This applies regardless of how small or obvious the decision seems.
 ## Core Principles
 
 - **Proceed interactively**: Never assume the decision, its drivers, or the winning option on the user's behalf.
-- **Pick the right tool for the question**: `AskUserQuestion` requires 2–4 concrete, mutually exclusive options — never call it for genuinely open-ended elicitation (e.g. "何に悩んでいるか," "背景を教えてください"). Ask those as a plain conversational question in the response text instead. Reserve `AskUserQuestion` for phase-confirmation gates, decision-driver/category selection from the checklist, and option comparisons that fit 2–4 choices.
+- **Pick the right tool for the question**: `AskUserQuestion` requires 2–4 concrete options — never call it for genuinely open-ended elicitation (e.g. "何に悩んでいるか," "背景を教えてください"). Ask those as a plain conversational question in the response text instead. Reserve `AskUserQuestion` for phase-confirmation gates, option comparisons that fit 2–4 mutually exclusive choices, and decision-driver/category selection from the checklist using `multiSelect` (categories like パフォーマンス and セキュリティ can apply simultaneously, so they are not mutually exclusive).
 - **Stay upstream of implementation**: Do not read or explore the codebase, and do not write code. If the user wants to act on the decision, that belongs to a separate implementation flow after this skill produces its ADR.
 - **Ground trade-offs in the checklist**: Use `references/decision-criteria-checklist.md` to deepen the discussion, but only for the categories relevant to the decision at hand — do not force every category into the ADR.
 - **Avoid vague claims**: Reject statements like "たぶん速くなる" or "安全なはず" — push for verifiable criteria or concrete numbers before recording them.
