@@ -7,7 +7,7 @@ description: >
   order, gates on user approval, then loops dev-workflow:implement-issue → /create-commit:commit
   → the official gh-stack skill per Issue. Not for a single standalone Issue with no dependents
   (use dev-workflow:implement-issue directly), and not for resolving PR review comments.
-allowed-tools: Bash(gh repo view *) Bash(gh issue view *) Bash(git branch --list *) Bash(git branch -D issue-*) AskUserQuestion Skill(dev-workflow:implement-issue *) SlashCommand(/create-commit:commit) Skill(gh-stack:gh-stack *)
+allowed-tools: Bash(gh repo view *) Bash(gh issue view *) Bash(git branch --list *) Bash(git branch -D issue-*) Bash(git rev-parse *) Bash(git worktree list*) AskUserQuestion Skill(dev-workflow:implement-issue *) SlashCommand(/create-commit:commit) Skill(gh-stack:gh-stack *)
 ---
 
 # Stack Implement Skill
@@ -251,12 +251,25 @@ reports an error:
   reuse an existing empty branch is up to `gh-stack:gh-stack`, not something this skill assumes —
   if it reports an error for this reason, delegate `Skill(skill="gh-stack:gh-stack")` to check out
   the existing empty branch and continue on it if it supports resuming onto one; only if it does
-  not, delete the stale local branch — but only after confirming the name to delete is
-  character-for-character identical to the `issue-<Issue番号>-<slug>` name this same iteration
-  computed in step 1 for this same Issue (never a different Issue's branch, and never a name derived
-  from anywhere else); halt without deleting anything if the names do not match exactly. Once
-  confirmed, run `git branch -D issue-<Issue番号>-<slug>` and retry the same `gh stack init`/`add`
-  call. Report to the user which path was taken before proceeding to step 3.
+  not, verify the stale branch is actually safe to discard before deleting it — never delete on
+  name match alone:
+  1. **Name check**: the name to delete must be character-for-character identical to the
+     `issue-<Issue番号>-<slug>` name this same iteration computed in step 1 for this same Issue
+     (never a different Issue's branch, and never a name derived from anywhere else). Halt without
+     deleting anything if it does not match exactly.
+  2. **Tip check**: run `Bash(command="git rev-parse issue-<Issue番号>-<slug>")` and
+     `Bash(command="git rev-parse HEAD")` and compare them. At this point in the loop the current
+     branch (`HEAD`) is this Issue's intended parent, so an empty branch's tip must equal it exactly
+     — the same "no commit beyond its parent" definition Pre-Phase Step 3 uses to classify a branch
+     as not yet done. If the tips differ, the branch carries at least one commit that is not
+     provably this skill's own abandoned attempt; halt without deleting anything and report the
+     conflict to the user instead of guessing.
+  3. **Checkout check**: run `Bash(command="git worktree list")` and confirm the branch does not
+     appear checked out in any listed worktree, including the current one. If it does, halt without
+     deleting anything and report which worktree holds it.
+
+  Only once all three checks pass, run `git branch -D issue-<Issue番号>-<slug>` and retry the same
+  `gh stack init`/`add` call. Report to the user which path was taken before proceeding to step 3.
 
 ---
 
