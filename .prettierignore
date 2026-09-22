@@ -2,3 +2,4 @@ pnpm-lock.yaml
 .claude
 CHANGELOG.md
 **/.claude-plugin/**
+!.claude-plugin/marketplace.json
