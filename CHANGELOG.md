@@ -1,5 +1,47 @@
 # Changelog
 
+## v2.1.0
+
+[compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v2.0.1...v2.1.0)
+
+### ✨ Features
+
+- **implement-issue:** 隠れた要件の再分割ガイダンスを追記する ([#114](https://github.com/XeicuLy/xeiculy-plugins/pull/114))
+- **stack-pr:** Stack-prプラグインの骨格を新規作成する ([#121](https://github.com/XeicuLy/xeiculy-plugins/pull/121))
+- **tech-adr:** Tech-adrプラグインの骨格を新規作成する ([#126](https://github.com/XeicuLy/xeiculy-plugins/pull/126))
+- **stack-implement:** 依存Issue群をスタック PR で実装するskillを追加する ([#125](https://github.com/XeicuLy/xeiculy-plugins/pull/125))
+- **adr-writer:** Adr-writer本体skillを実装する ([#129](https://github.com/XeicuLy/xeiculy-plugins/pull/129))
+- **stack-pr:** Marketplace.json に stack-pr エントリを追加する ([#131](https://github.com/XeicuLy/xeiculy-plugins/pull/131))
+- **tech-adr:** Marketplace.json に tech-adr エントリを追加する ([#132](https://github.com/XeicuLy/xeiculy-plugins/pull/132))
+
+### ♻️ Refactors
+
+- **task-breakdown:** Allowed-toolsを最小権限化しdescriptionに除外節を追加する ([#110](https://github.com/XeicuLy/xeiculy-plugins/pull/110))
+- **github-issue-creator:** Allowed-toolsを最小権限化する ([#111](https://github.com/XeicuLy/xeiculy-plugins/pull/111))
+- **requirements-definition:** Allowed-toolsを最小権限化する ([#113](https://github.com/XeicuLy/xeiculy-plugins/pull/113))
+- **implement-issue:** Allowed-toolsを最小権限化する ([#112](https://github.com/XeicuLy/xeiculy-plugins/pull/112))
+- **create-commit:** Clean-goneスキルをスラッシュコマンド化する ([#117](https://github.com/XeicuLy/xeiculy-plugins/pull/117))
+- **create-commit:** Commitスキルをスラッシュコマンド化する ([#116](https://github.com/XeicuLy/xeiculy-plugins/pull/116))
+- **create-commit:** Commit-push-prをスラッシュコマンド化する ([#118](https://github.com/XeicuLy/xeiculy-plugins/pull/118))
+- **resolve-pr-comments:** Commit呼び出しとallowed-toolsを見直す ([#119](https://github.com/XeicuLy/xeiculy-plugins/pull/119))
+
+### 📖 Documentation
+
+- **requirements:** プラグイン品質改善の要件定義書を追加する ([26a05d9](https://github.com/XeicuLy/xeiculy-plugins/commit/26a05d9))
+- **task-breakdown:** Perspectives表記を6項目に統一する ([#115](https://github.com/XeicuLy/xeiculy-plugins/pull/115))
+- **create-commit:** コマンド化に伴いREADMEとplugin.jsonの表記を更新する ([#120](https://github.com/XeicuLy/xeiculy-plugins/pull/120))
+- **stack-implement:** Gh-stack委譲対応表をreferenceとして追加する ([#124](https://github.com/XeicuLy/xeiculy-plugins/pull/124))
+- **stack-implement:** 依存グラフ解決仕様を追加する ([#123](https://github.com/XeicuLy/xeiculy-plugins/pull/123))
+- **adr-writer:** MADRテンプレートをreferenceとして追加する ([#127](https://github.com/XeicuLy/xeiculy-plugins/pull/127))
+- **adr-writer:** 意思決定観点チェックリストをreferenceとして追加する ([#128](https://github.com/XeicuLy/xeiculy-plugins/pull/128))
+- **adr-writer:** 記入済みサンプルADRを追加する ([#130](https://github.com/XeicuLy/xeiculy-plugins/pull/130))
+- ルートREADMEのプラグイン一覧を最新化する ([#133](https://github.com/XeicuLy/xeiculy-plugins/pull/133))
+
+### ❤️ Contributors
+
+- KAKI ([@XeicuLy](https://github.com/XeicuLy))
+- XeicuLy ([@XeicuLy](https://github.com/XeicuLy))
+
 ## v2.0.1
 
 [compare changes](https://github.com/XeicuLy/xeiculy-plugins/compare/v2.0.0...v2.0.1)

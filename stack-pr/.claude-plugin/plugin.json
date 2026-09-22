@@ -1,6 +1,6 @@
 {
   "name": "stack-pr",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Stacked pull request dependency management for personal development, delegating gh-stack operations to its official AI-agent skill and implementation loops to dev-workflow:implement-issue.",
   "author": {
     "name": "XeicuLy",
