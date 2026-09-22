@@ -7,7 +7,7 @@ description: >
   order, gates on user approval, then loops dev-workflow:implement-issue → /create-commit:commit
   → the official gh-stack skill per Issue. Not for a single standalone Issue with no dependents
   (use dev-workflow:implement-issue directly), and not for resolving PR review comments.
-allowed-tools: Bash(gh repo view *) Bash(gh issue view *) AskUserQuestion Skill(dev-workflow:implement-issue *) SlashCommand(/create-commit:commit) Skill(gh-stack:gh-stack *)
+allowed-tools: Bash(gh repo view *) Bash(gh issue view *) Bash(git branch --list *) Bash(git branch -D *) AskUserQuestion Skill(dev-workflow:implement-issue *) SlashCommand(/create-commit:commit) Skill(gh-stack:gh-stack *)
 ---
 
 # Stack Implement Skill
@@ -25,26 +25,43 @@ allowed-tools: Bash(gh repo view *) Bash(gh issue view *) AskUserQuestion Skill(
    implementation order. Halt exactly as that spec directs on any of its error conditions
    (no sub-issues, truncated node/edge lists, an external open dependency, a nested sub-issue
    tree, or a cycle) — do not proceed past those halts.
-3. **Resume detection.** Before presenting the order for approval, delegate
-   `Skill(skill="gh-stack:gh-stack")` → `gh stack view --json` to list the branches already
-   present in the local stack. This call resolves against the **currently checked-out branch**, not
-   a specific stack by number, so handle its two non-zero exit codes explicitly instead of assuming
-   valid JSON:
-   - **Exit code 2** (current branch is not in any stack) — treat this identically to an empty
-     stack: no Issue from Step 2 is already stacked. Continue to the matching logic below (every
-     Issue ends up **to implement**).
+3. **Resume detection.** First, for every Issue in the order from Step 2, compute its branch name
+   using the Branch Naming Rule in `references/stack-workflow.md` (`issue-<Issue番号>-<slug>`) —
+   these names are needed below regardless of which exit code the next call returns. Then delegate
+   `Skill(skill="gh-stack:gh-stack")` → `gh stack view --json` to list the branches already present
+   in the local stack. This call resolves against the **currently checked-out branch**, not a
+   specific stack by number, so handle its non-zero exit codes explicitly instead of assuming valid
+   JSON:
+   - **Exit code 2** (current branch is not in any stack) — this only means the _current_ branch
+     has no stack; it says nothing about whether this chain's own branches exist elsewhere locally
+     (e.g. the caller is on `main` while a prior run's branches still exist unpushed on another
+     line of history). Before treating this as an empty stack, run
+     `Bash(command="git branch --list issue-<Issue番号>-<slug>")` for each branch name computed
+     above (or a single `git branch --list 'issue-*'` and match the exact names against it).
+     - If **none** of the computed branch names exist locally: treat this identically to an empty
+       stack — no Issue from Step 2 is already stacked. Continue to the matching logic below (every
+       Issue ends up **to implement**).
+     - If **any** computed branch name already exists locally: halt before producing the Output
+       Format below, exactly as for exit code 6. Report which branch(es) were found and that they
+       are not reachable from the current branch's stack, and ask the user to `gh stack checkout`
+       onto one of them (or the chain's own top branch) before re-invoking this skill. Do not guess
+       which stack is intended, and do not perform any write operation.
    - **Exit code 6** (current branch belongs to multiple stacks — most commonly the repository's
      trunk, which is the base of every stack) — halt before producing the Output Format below.
      Report that resume detection could not disambiguate which stack to inspect, and ask the user
      to `git checkout`/`gh stack checkout` onto a branch that belongs to this chain (e.g., one of
      its own Issue branches from a prior run, if any) before re-invoking this skill. Do not guess
      which stack is intended, and do not perform any write operation.
+   - **Any other non-zero exit code** (e.g. GitHub API failure, invalid arguments, a rebase
+     conflict, or the stack being locked by another process) — halt immediately, before the
+     approval gate and before any `gh stack init`/`add`. Report the exit code and the command's own
+     error output; do not guess a fallback interpretation, and do not perform any write operation.
+     Resolving the underlying problem and re-invoking this skill re-runs this same check.
 
-   On success (valid JSON), for each Issue in the order from Step 2, compute its branch name
-   using the Branch Naming Rule in `references/stack-workflow.md` and check whether a branch with
-   that exact name exists in the stack **and** has at least one commit beyond its parent branch in
-   the stack (an empty branch — created by `gh stack init`/`add` but abandoned before any commit —
-   does not count as done).
+   On success (valid JSON, exit code 0), for each Issue in the order from Step 2, check whether a
+   branch with its computed name exists in the stack **and** has at least one commit beyond its
+   parent branch in the stack (an empty branch — created by `gh stack init`/`add` but abandoned
+   before any commit — does not count as done).
    - Every Issue that matches is **already stacked**: its implementation and commit are done, so
      exclude it from the Per-Issue Loop below (do not re-invoke `dev-workflow:implement-issue` or
      `/create-commit:commit` for it) — but keep it visible in the report (see Output Format below)
@@ -95,10 +112,11 @@ exception — a fresh chain, a single remaining Issue after a resume, and a full
 same way, since the order is re-derived from live state each time and could differ from what was
 approved previously (e.g. a dependency was added or removed on GitHub since the last run).
 
-The sole exception is Pre-Phase Step 3's resume detection: `Skill(skill="gh-stack:gh-stack")` →
-`gh stack view --json` is read-only and is permitted before approval, since without it the Output
-Format above cannot distinguish 既にスタック済み from 今回の実行対象. No other `gh-stack` operation is
-permitted before approval.
+The sole exceptions are Pre-Phase Step 3's resume detection: `Skill(skill="gh-stack:gh-stack")` →
+`gh stack view --json`, and the local branch existence check that follows its exit code 2 case
+(`Bash(command="git branch --list ...")`). Both are read-only and are permitted before approval,
+since without them the Output Format above cannot distinguish 既にスタック済み from 今回の実行対象. No
+other `gh-stack` operation, and no `git branch -D`, is permitted before approval.
 </HARD-GATE>
 
 ```text
@@ -121,9 +139,25 @@ not mean re-ordering the list in place. Tell the user which relationship to edit
 (`gh issue edit --add-blocked-by` / `--remove-blocked-by`, or restructuring sub-issues), then ask
 them to re-invoke this skill so Pre-Phase re-resolves the graph from the corrected state.
 
+### Resume to Stack Top
+
+Immediately after the user selects "はい、この順序で実装してください" above — and before the Push Safety Net
+below — delegate `Skill(skill="gh-stack:gh-stack")` → `gh stack top` exactly once, regardless of
+which branch the current invocation started on. Exit code 6 resume guidance (Pre-Phase Step 3) only
+tells the user to check out _some_ branch belonging to this chain, which may be a mid-chain Issue's
+branch rather than the top — and `gh stack add` in the Per-Issue Loop below requires being on the
+stack's topmost branch to attach a new branch correctly. `gh stack top` is idempotent (a no-op when
+already at the top), so running it unconditionally here is safe on a fresh chain, a resumed chain,
+and a re-run alike, and does not itself require a `gh stack init`/`add` to already exist.
+
+If `gh stack top` fails (e.g. no local stack exists yet — a genuinely fresh chain with no
+already-stacked Issues), treat this as expected and continue to the Push Safety Net below rather
+than halting; the first Issue's `gh stack init` in the Per-Issue Loop creates the stack in that
+case.
+
 ### Push Safety Net for Already-Stacked Issues
 
-Immediately after the user selects "はい、この順序で実装してください" above — and before Step 1 of the
+Immediately after the "Resume to Stack Top" step above — and before Step 1 of the
 Per-Issue Loop below — if Pre-Phase Step 3 classified one or more Issues as **already stacked**,
 delegate `Skill(skill="gh-stack:gh-stack")` → `gh stack push` exactly **once**, covering the whole
 stack. `gh stack push` takes no branch argument: it always pushes every active branch in the
@@ -243,11 +277,13 @@ cycle rather than the finished dependency-graph result).
 1. Pre-Phase resolves the order `#99 → #100 → #104`. `gh stack view --json` shows no existing
    branches, so nothing is excluded.
 2. HARD-GATE: user approves `#99 → #100 → #104`.
-3. `#99`: `gh stack init issue-99-dependency-graph-resolution` → implement → commit →
+3. Resume to Stack Top: `gh stack top` fails (no local stack exists yet) — expected on a fresh
+   chain, continue to the Push Safety Net (skipped, no already-stacked Issues) and then the loop.
+4. `#99`: `gh stack init issue-99-dependency-graph-resolution` → implement → commit →
    `gh stack push`. Succeeds.
-4. `#100`: `gh stack add issue-100-gh-stack-delegation-table` → implement →
+5. `#100`: `gh stack add issue-100-gh-stack-delegation-table` → implement →
    **`dev-workflow:implement-issue` cannot reach GREEN on one acceptance criterion**. Halt.
-5. Report:
+6. Report:
    ```
    ❌ #100 で失敗しました（実装フェーズ、dev-workflow:implement-issue 内の feature-dev Phase 5）。
    #99 は既に push 済みで安全です。原因を修正のうえ、同じ親Issue番号（#86）で本skillを再実行してください。
@@ -270,14 +306,18 @@ cycle rather than the finished dependency-graph result).
    ```
 
 4. HARD-GATE: user approves the remaining order.
-5. Push Safety Net: one `gh stack push` covering the whole stack (currently just `#99`'s branch) —
+5. Resume to Stack Top: `gh stack top` checks out `issue-99-dependency-graph-resolution` (the only
+   branch in the stack so far, hence already its top) — a no-op if the user had re-invoked from
+   there already, but this guarantees the correct branch even if they had checked out `main` or some
+   other unrelated branch before re-invoking.
+6. Push Safety Net: one `gh stack push` covering the whole stack (currently just `#99`'s branch) —
    a no-op here since it was already pushed at the end of Run 1, but run anyway to cover the case
    where push (not the implementation) was what failed in a prior run.
-6. `#100`: `gh stack add issue-100-gh-stack-delegation-table` (still stacks on top of `#99`'s
+7. `#100`: `gh stack add issue-100-gh-stack-delegation-table` (still stacks on top of `#99`'s
    already-pushed branch) → implement → commit → push. Succeeds this time.
-7. `#104`: `gh stack add issue-104-stack-implement-skill` → implement → commit → push. Succeeds —
+8. `#104`: `gh stack add issue-104-stack-implement-skill` → implement → commit → push. Succeeds —
    last Issue in the list.
-8. Post-Phase: `gh stack submit --auto`, once, for the whole `#99 → #100 → #104` chain.
+9. Post-Phase: `gh stack submit --auto`, once, for the whole `#99 → #100 → #104` chain.
 
 ---
 
