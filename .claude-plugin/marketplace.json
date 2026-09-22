@@ -56,6 +56,18 @@
       "description": "Git commit, push, PR creation, and branch cleanup skills with Japanese message generation.",
       "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/create-commit",
       "strict": true
+    },
+    {
+      "name": "tech-adr",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/XeicuLy/xeiculy-plugins.git",
+        "path": "tech-adr",
+        "ref": "v2.0.1"
+      },
+      "description": "Structured dialogue support for solo developers that turns technical judgment calls (refactoring, changeability, database choice, performance, running cost) into MADR-format Architecture Decision Records under docs/adr/.",
+      "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/tech-adr",
+      "strict": true
     }
   ]
 }
