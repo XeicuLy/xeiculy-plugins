@@ -56,6 +56,18 @@
       "description": "Git commit, push, PR creation, and branch cleanup skills with Japanese message generation.",
       "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/create-commit",
       "strict": true
+    },
+    {
+      "name": "stack-pr",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/XeicuLy/xeiculy-plugins.git",
+        "path": "stack-pr",
+        "ref": "v2.0.1"
+      },
+      "description": "Stacked pull request dependency management for personal development, delegating gh-stack operations to its official AI-agent skill and implementation loops to dev-workflow:implement-issue.",
+      "homepage": "https://github.com/XeicuLy/xeiculy-plugins/tree/main/stack-pr",
+      "strict": true
     }
   ]
 }
